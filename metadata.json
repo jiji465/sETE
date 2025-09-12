@@ -1,0 +1,5 @@
+{
+  "name": "Interactive Fiscal Debt Dashboard",
+  "description": "An interactive dashboard to visualize, filter, and analyze fiscal debt data across multiple companies. Features include dynamic KPIs, interactive charts, and a sortable, paginated data table.",
+  "requestFramePermissions": []
+}
