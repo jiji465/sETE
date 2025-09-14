@@ -58,7 +58,7 @@ export const PlanoEstrategicoView: React.FC = () => {
     const currentData = planoData[activeSection];
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in">
             <nav className="flex flex-wrap gap-2 mb-8" aria-label="Plano Estratégico Navegação">
                 <SubNavButton target="financeiro" label="Financeiro e Fiscal" isActive={activeSection === 'financeiro'} onClick={setActiveSection} />
                 <SubNavButton target="estoque" label="Estoque e Custos" isActive={activeSection === 'estoque'} onClick={setActiveSection} />
@@ -66,7 +66,7 @@ export const PlanoEstrategicoView: React.FC = () => {
                 <SubNavButton target="patrimonial" label="Patrimonial" isActive={activeSection === 'patrimonial'} onClick={setActiveSection} />
             </nav>
 
-            <div className="animate-fade-in">
+            <div>
                 <h2 className="text-3xl font-bold text-[var(--brand-dark-blue)] mb-2">{currentData.title}</h2>
                 <p className="text-[var(--text-secondary)] mb-8 max-w-3xl">{currentData.description}</p>
 

@@ -62,7 +62,12 @@ export const DashboardView: React.FC = () => {
                 onToggleAll={(isChecked) => dispatch({ type: 'TOGGLE_ALL_COMPANIES', payload: isChecked })}
             />
             <div className="flex-1 flex flex-col h-full lg:ml-72">
-                <main className="flex-1 p-4 sm:p-6 lg:p-8">
+                <main className="flex-1 p-4 sm:p-6 lg:p-8 animate-fade-in">
+                    <div className="mb-8">
+                        <h1 className="text-3xl font-bold text-[var(--text-primary)]">Dashboard Fiscal</h1>
+                        <p className="text-[var(--text-secondary)] mt-1">Análise detalhada da situação fiscal das empresas.</p>
+                    </div>
+
                     <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
                         <KpiCard title="Dívida Ativa" value={formatCurrency(kpis.totalDebt)} icon="landmark" iconColorClass="text-[var(--primary-light)]" />
                         <KpiCard title="Dívida Vencida" value={formatCurrency(kpis.overdueDebt)} icon="siren" iconColorClass="text-[var(--danger)]" />
