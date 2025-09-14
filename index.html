@@ -15,28 +15,28 @@
         :root {
             /* Brand Palette */
             --brand-dark-blue: #001D3D;
-            --brand-gem-yellow: #F79C04;
-            --brand-gold: #D4A657;
+            --brand-corporate-blue: #0a58ca; /* New Primary */
+            --brand-gold: #D4A657; /* Accent */
             --brand-danger: #ef4444;
             --brand-success: #22c55e;
             --brand-warning: #f59e0b;
 
             /* Light Theme - REFINED */
-            --background: #f9f9f9;
+            --background: #f4f7fa; /* Cleaner, lighter gray */
             --card-bg: #ffffff;
-            --subtle-bg: #f4f4f5;
+            --subtle-bg: #f8f9fa;
             --text-primary: #18181b;
             --text-secondary: #52525b;
             --text-tertiary: #a1a1aa;
             --border-color: #e4e4e7;
-            --border-focus: var(--brand-gem-yellow);
+            --border-focus: var(--brand-corporate-blue);
 
             /* Mapped Variables - REFINED */
-            --primary-fg: var(--brand-gem-yellow);
-            --primary-bg: color-mix(in srgb, var(--brand-gem-yellow) 15%, transparent);
-            --primary-bg-hover: color-mix(in srgb, var(--brand-gem-yellow) 25%, transparent);
+            --primary-fg: var(--brand-corporate-blue);
+            --primary-bg: color-mix(in srgb, var(--brand-corporate-blue) 15%, transparent);
+            --primary-bg-hover: color-mix(in srgb, var(--brand-corporate-blue) 25%, transparent);
             --primary-light: var(--brand-gold);
-            --primary-dark: #d88604;
+            --primary-dark: #0848a3;
             --danger: var(--brand-danger);
             --success: var(--brand-success);
             --warning: var(--brand-warning);
@@ -45,6 +45,21 @@
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.06);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
             --border-radius: 0.75rem;
+        }
+
+        /* Dark Theme Variables */
+        html.dark-theme {
+            --background: #0d1117;
+            --card-bg: #161b22;
+            --subtle-bg: #1c2128;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-tertiary: #6e7681;
+            --border-color: #30363d;
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.15);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.18), 0 2px 4px -2px rgb(0 0 0 / 0.18);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
         }
 
         /* General Body Styles */
@@ -63,10 +78,21 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes slide-in-fade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .table-row.animate-in {
+            opacity: 0;
+            animation: slide-in-fade 0.4s ease-out forwards;
+        }
+
         /* Logo */
         .logo-set-container { font-family: 'Inter', sans-serif; }
         .logo-set-main { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--brand-dark-blue); letter-spacing: 0.05em; }
         .logo-set-sub { font-size: 0.5em; font-weight: 500; letter-spacing: 0.2em; color: var(--text-secondary); text-transform: uppercase; }
+
+        html.dark-theme .logo-set-main { color: var(--text-primary); }
 
         /* Layout: Header & Sidebar */
         .app-header { 
@@ -90,10 +116,21 @@
             box-shadow: var(--shadow-sm);
             transition: all 0.25s ease-in-out;
         }
+        .kpi-card {
+            position: relative;
+            overflow: hidden;
+            padding-left: calc(1.25rem + 4px);
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background-color: var(--kpi-border-color, var(--primary-fg));
+        }
         .kpi-card:hover { 
             transform: translateY(-3px); 
             box-shadow: var(--shadow-lg);
-            border-color: color-mix(in srgb, var(--primary-light) 50%, transparent);
         }
         .chart-card { padding: 1.5rem; }
         .content-card { box-shadow: var(--shadow-md); }
@@ -163,7 +200,7 @@
         }
         .pagination-btn.active { 
             background-color: var(--primary-fg); 
-            color: var(--brand-dark-blue); 
+            color: var(--card-bg); 
             border-color: var(--primary-fg); 
             font-weight: bold; 
         }
@@ -183,11 +220,11 @@
             transform: translateY(-1px);
         }
         .quick-filter-btn.active { 
-            background-color: var(--brand-dark-blue); 
+            background-color: var(--primary-fg); 
             color: white; 
-            border-color: var(--brand-dark-blue); 
+            border-color: var(--primary-fg); 
             font-weight: 600; 
-            box-shadow: 0 2px 4px color-mix(in srgb, var(--brand-dark-blue) 25%, transparent); 
+            box-shadow: 0 2px 4px color-mix(in srgb, var(--primary-fg) 25%, transparent); 
         }
 
         /* Navigation */
@@ -198,7 +235,7 @@
         }
         .main-nav-button:hover { color: var(--text-primary); }
         .main-nav-button.active { 
-            color: var(--brand-dark-blue); 
+            color: var(--primary-fg); 
             font-weight: 600; 
             border-bottom-color: var(--primary-fg); 
         }
@@ -220,6 +257,9 @@
             background-color: var(--primary-bg); 
             box-shadow: var(--shadow-sm);
         }
+        html.dark-theme .sub-nav-button.active {
+            color: var(--text-primary);
+        }
 
         /* Status Badges */
         .status-badge { 
@@ -235,6 +275,13 @@
         .status-Pago { background-color: #dcfce7; color: #166534; } .status-Pago::before { background-color: #22c55e; }
         .status-Ignorado { background-color: #e5e7eb; color: #4b5563; } .status-Ignorado::before { background-color: #6b7280; }
         .status-outro { background-color: #e0e7ff; color: #4338ca; } .status-outro::before { background-color: #6366f1; }
+        
+        html.dark-theme .status-VENCIDO { background-color: #3f2229; color: #fca5a5; }
+        html.dark-theme .status-A_VENCER { background-color: #42300f; color: #fde047; }
+        html.dark-theme .status-Pago { background-color: #1a3b2a; color: #86efac; }
+        html.dark-theme .status-Ignorado { background-color: #2b313d; color: #a6b0c1; }
+        html.dark-theme .status-outro { background-color: #292d4b; color: #a5b4fc; }
+
 
         /* Flow Chart (Plano) */
         .flow-step { 
@@ -246,6 +293,9 @@
             font-size: 0.875rem; font-weight: 600;
             box-shadow: var(--shadow-sm);
         }
+        html.dark-theme .flow-step {
+            color: var(--text-primary);
+        }
         .flow-arrow { display: flex; align-items: center; justify-content: center; flex-grow: 1; color: var(--primary-light); }
 
 
@@ -254,16 +304,18 @@
         .sort-icon.active { opacity: 1; color: var(--primary-fg); }
         .sidebar input[type="checkbox"] { accent-color: var(--primary-fg); flex-shrink: 0; }
         .loading-overlay { position: fixed; inset: 0; background-color: rgba(255, 255, 255, 0.6); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        html.dark-theme .loading-overlay { background-color: rgba(13, 17, 23, 0.6); }
         .loading-overlay.show { opacity: 1; pointer-events: auto; }
         .spinner { width: 48px; height: 48px; border: 5px solid var(--border-color); border-bottom-color: var(--primary-light); border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .tooltip { position: relative; }
         .tooltip:hover::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-4px); background: var(--brand-dark-blue); color: #fff; padding: 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; white-space: nowrap; z-index: 50; box-shadow: var(--shadow-md); }
+        html.dark-theme .tooltip:hover::after { background: var(--text-primary); color: var(--background); }
         .filter-drawer { transform: translateX(100%); transition: transform 0.3s ease-in-out; }
         .filter-drawer.open { transform: translateX(0); }
         .filter-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out; background-color: rgba(0,0,0,0.4); }
         .filter-overlay.open { opacity: 1; pointer-events: auto; }
-        .filter-badge { position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; font-size: 11px; background-color: var(--primary-fg); color: var(--brand-dark-blue); font-weight: bold; }
+        .filter-badge { position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; font-size: 11px; background-color: var(--primary-light); color: var(--brand-dark-blue); font-weight: bold; }
         .custom-select-container { position: relative; }
         .custom-select-trigger { display: flex; align-items: center; justify-content: space-between; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0 0.75rem; cursor: pointer; width: 100%; height: 42px; }
         .custom-select-options { position: absolute; top: 100%; left: 0; right: 0; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 0.5rem; margin-top: 0.25rem; z-index: 50; max-height: 200px; overflow-y: auto; opacity: 0; transform: scaleY(0.95) translateY(-10px); pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease; transform-origin: top; box-shadow: var(--shadow-lg); }
@@ -293,14 +345,22 @@
 <body class="plano-active">
     <div id="app-container" class="flex flex-col h-screen bg-[var(--background)]">
         <header class="app-header border-b border-[var(--border-color)] px-4 sm:px-6 lg:px-8 flex justify-between items-center sticky top-0 z-30 shrink-0 h-16">
-            <div class="logo-set-container text-center scale-75 -ml-4">
-                <div class="logo-set-main text-5xl">SETE</div>
-                <div class="logo-set-sub">Soluções Fiscais</div>
+            <div class="flex items-center gap-4">
+                <div class="logo-set-container text-center scale-75 -ml-4">
+                    <div class="logo-set-main text-5xl">SETE</div>
+                    <div class="logo-set-sub">Soluções Fiscais</div>
+                </div>
             </div>
-            <nav class="flex items-center gap-4 h-full">
-                <button data-view="plano" class="main-nav-button h-full flex items-center px-3 text-sm font-medium active">Plano Estratégico</button>
-                <button data-view="dashboard" class="main-nav-button h-full flex items-center px-3 text-sm font-medium">Dashboard Fiscal</button>
-            </nav>
+            <div class="flex items-center gap-4 h-full">
+                <nav class="flex items-center gap-4 h-full">
+                    <button data-view="plano" class="main-nav-button h-full flex items-center px-3 text-sm font-medium active">Plano Estratégico</button>
+                    <button data-view="dashboard" class="main-nav-button h-full flex items-center px-3 text-sm font-medium">Dashboard Fiscal</button>
+                </nav>
+                <div class="h-6 w-px bg-[var(--border-color)]"></div>
+                <button id="theme-toggle-btn" class="p-2 rounded-md hover:bg-[var(--primary-bg)] transition-colors" aria-label="Toggle theme">
+                    <i data-lucide="sun" class="w-5 h-5 text-[var(--text-secondary)]"></i>
+                </button>
+            </div>
         </header>
 
         <div class="flex-1 overflow-y-auto">
@@ -339,7 +399,7 @@
                             <div class="lg:col-span-2 chart-card flex flex-col">
                                 <div class="flex justify-between items-center">
                                     <h3 class="font-bold">Dívida por Tipo</h3>
-                                    <button id="clear-tipo-filter-btn" class="text-xs text-[var(--brand-dark-blue)] font-semibold hover:underline">Limpar</button>
+                                    <button id="clear-tipo-filter-btn" class="text-xs text-[var(--primary-fg)] font-semibold hover:underline">Limpar</button>
                                 </div>
                                 <div class="relative flex-1 min-h-[300px] mt-4"><canvas id="debtByTypeChart"></canvas></div>
                             </div>
@@ -414,7 +474,7 @@
         </div>
         <div class="mt-6 flex gap-3 border-t border-[var(--border-color)] pt-4">
             <button id="clear-filters-btn" class="w-full py-2.5 px-4 rounded-lg border border-[var(--border-color)] font-semibold hover:bg-[var(--subtle-bg)] transition">Limpar Filtros</button>
-            <button id="apply-filters-btn" class="w-full py-2.5 px-4 rounded-lg bg-[var(--primary-fg)] text-[var(--brand-dark-blue)] font-semibold hover:bg-[var(--primary-dark)] transition">Aplicar</button>
+            <button id="apply-filters-btn" class="w-full py-2.5 px-4 rounded-lg bg-[var(--primary-fg)] text-white font-semibold hover:bg-[var(--primary-dark)] transition">Aplicar</button>
         </div>
     </div>
 
@@ -642,6 +702,24 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
 
+    const animateValue = (el, start, end, duration, formatFn) => {
+        if (start === end) {
+            el.textContent = formatFn(end);
+            return;
+        }
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const current = progress * (end - start) + start;
+            el.textContent = formatFn(current);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    };
+
     // --- STATE & DATA PROCESSING ---
     let state = {
         isLoading: true,
@@ -655,6 +733,8 @@ document.addEventListener('DOMContentLoaded', () => {
         expandedRows: new Set(),
         selectedRows: new Set(),
         paginatedIds: [],
+        kpis: null,
+        prevKpis: null,
     };
 
     let allCompanies = [], allSituacoes = [], allTipos = [];
@@ -715,97 +795,163 @@ document.addEventListener('DOMContentLoaded', () => {
         filterCompanySelect: document.getElementById('filter-company-select'),
         filterSituacaoSelect: document.getElementById('filter-situacao-select'),
         filterTipoSelect: document.getElementById('filter-tipo-select'),
+        themeToggleButton: document.getElementById('theme-toggle-btn'),
     };
     
     // --- RENDER FUNCTIONS ---
-    const renderKPIs = (kpis) => {
+    const renderKPIs = (currentKpis, prevKpis) => {
         const kpiData = [
-            { title: "Dívida Ativa", value: formatCurrency(kpis.totalDebt), icon: "landmark", color: "text-[var(--primary-light)]" },
-            { title: "Dívida Vencida", value: formatCurrency(kpis.overdueDebt), icon: "siren", color: "text-[var(--danger)]" },
-            { title: "A Vencer", value: formatCurrency(kpis.upcomingDebt), icon: "calendar-check", color: "text-[var(--warning)]" },
-            { title: "Débitos Filtrados", value: kpis.totalDebtsCount.toString(), icon: "file-stack", color: "text-[var(--success)]" }
+            { id: "kpi-total-debt", title: "Dívida Ativa", rawValue: currentKpis.totalDebt, icon: "landmark", color: getCssVar('--primary-fg') },
+            { id: "kpi-overdue-debt", title: "Dívida Vencida", rawValue: currentKpis.overdueDebt, icon: "siren", color: getCssVar('--danger') },
+            { id: "kpi-upcoming-debt", title: "A Vencer", rawValue: currentKpis.upcomingDebt, icon: "calendar-check", color: getCssVar('--warning') },
+            { id: "kpi-debts-count", title: "Débitos Filtrados", rawValue: currentKpis.totalDebtsCount, icon: "file-stack", color: getCssVar('--success') }
         ];
-        dom.kpiCardsContainer.innerHTML = kpiData.map(kpi => `
-            <div class="kpi-card p-5 flex flex-col">
-                <div class="flex items-center justify-between">
-                    <h3 class="font-semibold text-[var(--text-secondary)] uppercase text-xs tracking-wider">${kpi.title}</h3>
-                    <div class="p-2 rounded-md bg-opacity-10 ${kpi.color.replace('text-', 'bg-')}">
-                        <i data-lucide="${kpi.icon}" class="${kpi.color} w-5 h-5"></i>
+
+        const isFirstRender = !prevKpis;
+
+        if (isFirstRender) {
+            dom.kpiCardsContainer.innerHTML = kpiData.map(kpi => {
+                const isCount = kpi.id === 'kpi-debts-count';
+                const formattedValue = isCount ? kpi.rawValue.toString() : formatCurrency(kpi.rawValue);
+                return `
+                <div class="kpi-card p-5 flex flex-col" style="--kpi-border-color: ${kpi.color};">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-[var(--text-secondary)] uppercase text-xs tracking-wider">${kpi.title}</h3>
+                        <div class="p-2 rounded-md" style="background-color: ${kpi.color}1A;">
+                            <i data-lucide="${kpi.icon}" class="w-5 h-5" style="color: ${kpi.color};"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex-1 flex items-end">
+                        <p id="${kpi.id}" class="kpi-value font-bold text-[var(--text-primary)]">${formattedValue}</p>
                     </div>
                 </div>
-                <div class="mt-2 flex-1 flex items-end">
-                    <p class="kpi-value font-bold text-[var(--text-primary)] kpi-value-update">${kpi.value}</p>
-                </div>
-            </div>
-        `).join('');
+            `}).join('');
+            lucide.createIcons();
+            return;
+        }
+
+        kpiData.forEach(kpi => {
+            const el = document.getElementById(kpi.id);
+            if (el) {
+                const isCount = kpi.id === 'kpi-debts-count';
+                const formatFn = isCount ? val => Math.round(val).toString() : formatCurrency;
+                let startVal = 0;
+                switch(kpi.id) {
+                    case 'kpi-total-debt': startVal = prevKpis.totalDebt; break;
+                    case 'kpi-overdue-debt': startVal = prevKpis.overdueDebt; break;
+                    case 'kpi-upcoming-debt': startVal = prevKpis.upcomingDebt; break;
+                    case 'kpi-debts-count': startVal = prevKpis.totalDebtsCount; break;
+                }
+                animateValue(el, startVal, kpi.rawValue, 800, formatFn);
+            }
+        });
     };
 
     const renderCharts = (data) => {
-        const textColor = getCssVar('--text-secondary');
-        const gridColor = getCssVar('--border-color');
+        const updateChartColors = () => {
+            const textColor = getCssVar('--text-secondary');
+            const gridColor = getCssVar('--border-color');
+            const cardBgColor = getCssVar('--card-bg');
 
-        // Chart 1: Debt by Type (Donut)
+            if (debtByTypeChart) {
+                debtByTypeChart.options.plugins.legend.labels.color = textColor;
+                debtByTypeChart.data.datasets[0].borderColor = cardBgColor;
+                debtByTypeChart.update('none');
+            }
+            if (debtByCompanyChart) {
+                debtByCompanyChart.options.scales.x.ticks.color = textColor;
+                debtByCompanyChart.options.scales.x.grid.color = gridColor;
+                debtByCompanyChart.options.scales.y.ticks.color = textColor;
+                debtByCompanyChart.update('none');
+            }
+        };
+        
+        window.updateChartColors = updateChartColors; // Make it globally accessible for theme switcher
+
+        // Data processing for charts
         const byType = data.reduce((acc, item) => {
             acc[item.tipo] = (acc[item.tipo] || 0) + item.valor;
             return acc;
         }, {});
-        
         const typeLabels = Object.keys(byType);
         const typeData = Object.values(byType);
-        const typeColors = [getCssVar('--brand-gem-yellow'), getCssVar('--brand-gold'), '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444', '#22c55e'];
         
-        const typeCtx = document.getElementById('debtByTypeChart').getContext('2d');
-        if (debtByTypeChart) debtByTypeChart.destroy();
-        debtByTypeChart = new Chart(typeCtx, {
-            type: 'doughnut',
-            data: { labels: typeLabels, datasets: [{ data: typeData, backgroundColor: typeColors, borderColor: getCssVar('--card-bg'), borderWidth: 4 }] },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'right', labels: { color: textColor, boxWidth: 12, padding: 15 } },
-                    tooltip: { callbacks: { label: (context) => `${context.label}: ${formatCurrency(context.raw)}` } }
-                },
-                onClick: (_, elements) => {
-                    if (elements.length > 0) {
-                        const clickedLabel = typeLabels[elements[0].index];
-                        state.filters.chartTipo = state.filters.chartTipo === clickedLabel ? null : clickedLabel;
-                        updateDashboard();
-                    }
-                }
-            }
-        });
-
-        // Chart 2: Debt by Company (Bar)
         const byCompany = data.reduce((acc, item) => {
             acc[item.empresa] = (acc[item.empresa] || 0) + item.valor;
             return acc;
         }, {});
-        
         const companyLabels = Object.keys(byCompany);
         const companyData = Object.values(byCompany);
 
-        const companyCtx = document.getElementById('debtByCompanyChart').getContext('2d');
-        if (debtByCompanyChart) debtByCompanyChart.destroy();
-        debtByCompanyChart = new Chart(companyCtx, {
-            type: 'bar',
-            data: {
-                labels: companyLabels,
-                datasets: [{
-                    label: 'Dívida Total',
-                    data: companyData,
-                    backgroundColor: getCssVar('--brand-gold'),
-                    borderRadius: 4,
-                }]
-            },
-            options: {
-                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => formatCurrency(context.raw) } } },
-                scales: {
-                    x: { ticks: { color: textColor }, grid: { color: gridColor } },
-                    y: { ticks: { color: textColor }, grid: { display: false } }
+        // Chart 1: Debt by Type (Donut)
+        if (!debtByTypeChart) {
+            const typeCtx = document.getElementById('debtByTypeChart').getContext('2d');
+            debtByTypeChart = new Chart(typeCtx, {
+                type: 'doughnut',
+                data: { 
+                    labels: typeLabels, 
+                    datasets: [{ 
+                        data: typeData, 
+                        backgroundColor: [getCssVar('--primary-fg'), getCssVar('--primary-light'), '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444', '#22c55e'], 
+                        borderColor: getCssVar('--card-bg'), 
+                        borderWidth: 4 
+                    }] 
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 800, easing: 'easeOutQuart' },
+                    plugins: {
+                        legend: { position: 'right', labels: { color: getCssVar('--text-secondary'), boxWidth: 12, padding: 15 } },
+                        tooltip: { callbacks: { label: (context) => `${context.label}: ${formatCurrency(context.raw)}` } }
+                    },
+                    onClick: (_, elements) => {
+                        if (elements.length > 0) {
+                            const clickedLabel = typeLabels[elements[0].index];
+                            state.filters.chartTipo = state.filters.chartTipo === clickedLabel ? null : clickedLabel;
+                            updateDashboard();
+                        }
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            debtByTypeChart.data.labels = typeLabels;
+            debtByTypeChart.data.datasets[0].data = typeData;
+            debtByTypeChart.update();
+        }
+
+        // Chart 2: Debt by Company (Bar)
+        if (!debtByCompanyChart) {
+            const companyCtx = document.getElementById('debtByCompanyChart').getContext('2d');
+            const gradient = companyCtx.createLinearGradient(0, 0, 0, companyCtx.canvas.clientHeight);
+            gradient.addColorStop(0, getCssVar('--primary-light'));
+            gradient.addColorStop(1, getCssVar('--primary-fg'));
+
+            debtByCompanyChart = new Chart(companyCtx, {
+                type: 'bar',
+                data: {
+                    labels: companyLabels,
+                    datasets: [{
+                        label: 'Dívida Total',
+                        data: companyData,
+                        backgroundColor: gradient,
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 800, easing: 'easeOutQuart' },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => formatCurrency(context.raw) } } },
+                    scales: {
+                        x: { ticks: { color: getCssVar('--text-secondary') }, grid: { color: getCssVar('--border-color') } },
+                        y: { ticks: { color: getCssVar('--text-secondary') }, grid: { display: false } }
+                    }
+                }
+            });
+        } else {
+            debtByCompanyChart.data.labels = companyLabels;
+            debtByCompanyChart.data.datasets[0].data = companyData;
+            debtByCompanyChart.update();
+        }
     };
 
     const renderTable = (data, totalItems) => {
@@ -846,7 +992,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.length === 0) {
             dom.tableBody.innerHTML = `<tr><td colspan="${headers.length + 2}" class="text-center p-8 text-[var(--text-secondary)]">Nenhum resultado encontrado.</td></tr>`;
         } else {
-            dom.tableBody.innerHTML = data.map(item => {
+            dom.tableBody.innerHTML = data.map((item, index) => {
                 const isExpanded = state.expandedRows.has(item.id);
                 const isSelected = state.selectedRows.has(item.id);
                 const subRowsHtml = isExpanded && item.subRows ? item.subRows.map(subRow => `
@@ -878,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const statusKey = item.situacao.replace(/\s/g, '_');
 
                 return `
-                    <tr class="table-row ${item.situacao === STATUS.VENCIDO ? 'overdue' : ''} ${isSelected ? 'selected' : ''}" data-item-id="${item.id}">
+                    <tr class="table-row animate-in ${item.situacao === STATUS.VENCIDO ? 'overdue' : ''} ${isSelected ? 'selected' : ''}" data-item-id="${item.id}" style="animation-delay: ${index * 30}ms;">
                         <td class="p-3 text-center"><input type="checkbox" class="table-checkbox row-checkbox" data-item-id="${item.id}" ${isSelected ? 'checked' : ''} /></td>
                         <td class="p-3 text-center">${item.subRows && item.subRows.length > 0 ? `<button class="p-1 rounded-full hover:bg-[var(--subtle-bg)] expand-btn" data-item-id="${item.id}"><i data-lucide="${isExpanded ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4"></i></button>` : ''}</td>
                         <td class="p-3 font-medium">${item.empresa}</td>
@@ -1017,15 +1163,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (state.filters.situacoes.length > 0) filterCount++;
         if (state.filters.tipos.length > 0) filterCount++;
         if (allCompanies.length > 0 && state.activeCompanies.size < allCompanies.length) filterCount++;
-        const kpis = {
+        
+        const newKpis = {
             totalDebt: activeDebt.reduce((acc, item) => acc + item.valor, 0),
             overdueDebt: activeDebt.reduce((acc, item) => acc + (item.situacao === STATUS.VENCIDO ? item.valor : 0), 0),
             upcomingDebt: activeDebt.reduce((acc, item) => acc + (item.situacao === STATUS.A_VENCER ? item.valor : 0), 0),
             totalDebtsCount: filteredData.length,
         };
+        state.prevKpis = state.kpis;
+        state.kpis = newKpis;
 
         // Render UI
-        renderKPIs(kpis);
+        renderKPIs(state.kpis, state.prevKpis);
         renderCharts(filteredData);
         renderTable(paginatedData, sortedData.length);
         renderQuickFilters();
@@ -1146,6 +1295,39 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     };
+    
+    // --- Theme Switcher Logic ---
+    const handleThemeSwitch = () => {
+        const htmlEl = document.documentElement;
+        const isDarkMode = htmlEl.classList.contains('dark-theme');
+        const newTheme = isDarkMode ? 'light' : 'dark';
+        
+        htmlEl.classList.toggle('dark-theme', !isDarkMode);
+        localStorage.setItem('theme', newTheme);
+        
+        const icon = dom.themeToggleButton.querySelector('i');
+        icon.setAttribute('data-lucide', newTheme === 'dark' ? 'moon' : 'sun');
+        lucide.createIcons();
+
+        // Update charts after a brief delay to allow CSS variables to apply
+        setTimeout(() => {
+            if (typeof window.updateChartColors === 'function') {
+                window.updateChartColors();
+            }
+        }, 50);
+    };
+
+    const applyInitialTheme = () => {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDarkMode = savedTheme === 'dark' || (savedTheme === null && prefersDark);
+
+        document.documentElement.classList.toggle('dark-theme', isDarkMode);
+
+        const icon = dom.themeToggleButton.querySelector('i');
+        icon.setAttribute('data-lucide', isDarkMode ? 'moon' : 'sun');
+    };
+
 
     // --- EVENT LISTENERS ---
     const addEventListeners = () => {
@@ -1162,6 +1344,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+
+        dom.themeToggleButton.addEventListener('click', handleThemeSwitch);
 
         // Dashboard Listeners
         dom.searchInput.addEventListener('input', e => {
@@ -1339,6 +1523,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- INITIALIZATION ---
+    applyInitialTheme();
     initPlano();
     addEventListeners();
     lucide.createIcons();
