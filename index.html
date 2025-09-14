@@ -283,18 +283,1066 @@
         .content-card ul li { display: flex; align-items: flex-start; }
         .content-card ul li svg { color: var(--primary-light); margin-top: 5px; margin-right: 0.75rem; flex-shrink: 0; }
         @media (min-width: 1024px) { .bulk-action-bar { left: calc(50% + 144px); } }
+
+        /* View-specific styles */
+        #plano-view, #dashboard-view { display: none; }
+        body.plano-active #plano-view { display: block; }
+        body.dashboard-active #dashboard-view { display: flex; }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "react": "https://aistudiocdn.com/react@^19.1.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/"
-  }
-}
-</script>
 </head>
-<body>
-    <div id="root"></div>
+<body class="plano-active">
+    <div id="app-container" class="flex flex-col h-screen bg-[var(--background)]">
+        <header class="app-header border-b border-[var(--border-color)] px-4 sm:px-6 lg:px-8 flex justify-between items-center sticky top-0 z-30 shrink-0 h-16">
+            <div class="logo-set-container text-center scale-75 -ml-4">
+                <div class="logo-set-main text-5xl">SETE</div>
+                <div class="logo-set-sub">Soluções Fiscais</div>
+            </div>
+            <nav class="flex items-center gap-4 h-full">
+                <button data-view="plano" class="main-nav-button h-full flex items-center px-3 text-sm font-medium active">Plano Estratégico</button>
+                <button data-view="dashboard" class="main-nav-button h-full flex items-center px-3 text-sm font-medium">Dashboard Fiscal</button>
+            </nav>
+        </header>
+
+        <div class="flex-1 overflow-y-auto">
+            <!-- Plano Estratégico View -->
+            <div id="plano-view" class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in">
+                <nav id="plano-subnav" class="flex flex-wrap gap-2 mb-8" aria-label="Plano Estratégico Navegação"></nav>
+                <div id="plano-content"></div>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="h-full bg-[var(--background)]">
+                <div id="loading-overlay" class="loading-overlay">
+                    <div class="spinner"></div>
+                </div>
+                
+                <aside id="sidebar-dashboard" class="sidebar w-72 flex-shrink-0 p-4 flex-col fixed inset-y-0 left-0 z-40 transition-transform -translate-x-full lg:translate-x-0 lg:flex">
+                     <div class="flex items-center justify-center gap-3 mb-10 px-2 pt-4">
+                        <div class="logo-set-container text-center">
+                            <div class="logo-set-main text-5xl">SETE</div>
+                            <div class="logo-set-sub">Soluções Fiscais</div>
+                        </div>
+                    </div>
+                    <nav id="sidebar-company-list" class="flex flex-col gap-1 flex-1 overflow-y-auto pr-2"></nav>
+                </aside>
+                
+                <div class="flex-1 flex flex-col h-full lg:ml-72">
+                    <main class="flex-1 p-4 sm:p-6 lg:p-8 animate-fade-in">
+                        <div class="mb-8">
+                            <h1 class="text-3xl font-bold text-[var(--text-primary)]">Dashboard Fiscal</h1>
+                            <p class="text-[var(--text-secondary)] mt-1">Análise detalhada da situação fiscal das empresas.</p>
+                        </div>
+
+                        <section id="kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8"></section>
+
+                        <section class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
+                            <div class="lg:col-span-2 chart-card flex flex-col">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="font-bold">Dívida por Tipo</h3>
+                                    <button id="clear-tipo-filter-btn" class="text-xs text-[var(--brand-dark-blue)] font-semibold hover:underline">Limpar</button>
+                                </div>
+                                <div class="relative flex-1 min-h-[300px] mt-4"><canvas id="debtByTypeChart"></canvas></div>
+                            </div>
+                            <div class="lg:col-span-3 chart-card flex flex-col">
+                                <h3 class="font-bold">Dívida por Empresa</h3>
+                                <div class="relative flex-1 min-h-[300px] mt-4"><canvas id="debtByCompanyChart"></canvas></div>
+                            </div>
+                        </section>
+                        
+                        <div class="bg-[var(--card-bg)] p-4 rounded-t-xl border border-b-0 border-[var(--border-color)] flex flex-col gap-4">
+                            <div class="flex flex-wrap items-center justify-between gap-4">
+                                <div class="flex-1 min-w-[250px] relative">
+                                    <input type="text" id="search-input" placeholder="Buscar por empresa ou débito..." class="filter-input w-full pl-10 pr-4 py-2" />
+                                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]"><i data-lucide="search" class="w-5 h-5"></i></div>
+                                </div>
+                                 <div class="flex items-center gap-3">
+                                    <button id="refresh-data-btn" class="p-2 bg-[var(--primary-bg)] text-[var(--brand-dark-blue)] rounded-lg hover:bg-[var(--primary-bg-hover)] transition tooltip" data-tooltip="Atualizar dados" aria-label="Atualizar dados">
+                                        <i data-lucide="refresh-cw" class="w-5 h-5 text-[var(--primary-fg)]"></i>
+                                    </button>
+                                    <div class="relative">
+                                        <button id="open-filter-drawer-btn" class="bg-[var(--primary-bg)] text-[var(--brand-dark-blue)] px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:bg-[var(--primary-bg-hover)]">
+                                            <i data-lucide="filter" class="w-4 h-4"></i>
+                                            <span>Filtros</span>
+                                        </button>
+                                        <span id="filter-badge" class="filter-badge hidden items-center justify-center rounded-full">0</span>
+                                    </div>
+                                 </div>
+                            </div>
+                             <div id="quick-filters" class="flex items-center gap-2 flex-wrap"></div>
+                        </div>
+                        <div class="table-container">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead id="table-head" class="table-header"></thead>
+                                    <tbody id="table-body"></tbody>
+                                </table>
+                            </div>
+                            <div id="pagination-controls" class="p-4 flex items-center justify-between flex-wrap gap-4"></div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filter Drawer -->
+    <div id="filter-drawer-overlay" class="filter-overlay fixed inset-0 z-40"></div>
+    <div id="filter-drawer" class="filter-drawer fixed top-0 right-0 h-full w-full max-w-sm bg-[var(--card-bg)] shadow-lg z-50 p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold">Filtros Avançados</h3>
+            <button id="close-filter-drawer-btn" class="p-1 rounded-full hover:bg-[var(--primary-bg)]"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="flex-1 space-y-6 overflow-y-auto pr-3 -mr-3">
+             <div class="space-y-4">
+                <h4 class="text-xs font-bold uppercase text-[var(--text-secondary)] tracking-wider flex items-center gap-2"><i data-lucide="calendar-range" class="w-4 h-4"></i><span>Período de Vencimento</span></h4>
+                <div>
+                    <label for="startDate" class="block text-sm font-medium mb-1.5">De</label>
+                    <input id="startDate" type="date" class="filter-input w-full px-3 py-2" />
+                </div>
+                <div>
+                    <label for="endDate" class="block text-sm font-medium mb-1.5">Até</label>
+                    <input id="endDate" type="date" class="filter-input w-full px-3 py-2" />
+                </div>
+            </div>
+            <hr class="border-[var(--border-color)]" />
+            <div class="space-y-4">
+                <h4 class="text-xs font-bold uppercase text-[var(--text-secondary)] tracking-wider flex items-center gap-2"><i data-lucide="list-filter" class="w-4 h-4"></i><span>Critérios</span></h4>
+                <div id="filter-company-select"></div>
+                <div id="filter-situacao-select"></div>
+                <div id="filter-tipo-select"></div>
+            </div>
+        </div>
+        <div class="mt-6 flex gap-3 border-t border-[var(--border-color)] pt-4">
+            <button id="clear-filters-btn" class="w-full py-2.5 px-4 rounded-lg border border-[var(--border-color)] font-semibold hover:bg-[var(--subtle-bg)] transition">Limpar Filtros</button>
+            <button id="apply-filters-btn" class="w-full py-2.5 px-4 rounded-lg bg-[var(--primary-fg)] text-[var(--brand-dark-blue)] font-semibold hover:bg-[var(--primary-dark)] transition">Aplicar</button>
+        </div>
+    </div>
+
+    <!-- Bulk Action Bar -->
+    <div id="bulk-action-bar" class="bulk-action-bar">
+        <span id="bulk-action-count" class="font-semibold text-sm">0 selecionado(s)</span>
+        <div class="flex items-center gap-3 ml-auto">
+            <button id="bulk-action-paid" class="bg-[var(--success)] text-white px-3 py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:opacity-90 text-sm"><i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como Pago</button>
+            <button id="bulk-action-ignore" class="bg-gray-500 text-white px-3 py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:opacity-90 text-sm"><i data-lucide="archive" class="w-4 h-4"></i> Ignorar</button>
+        </div>
+        <button id="bulk-action-clear" class="p-2 rounded-full hover:bg-[var(--subtle-bg)]" aria-label="Limpar seleção"><i data-lucide="x" class="w-5 h-5 text-[var(--text-secondary)]"></i></button>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- DATA ---
+    const STATUS = {
+        VENCIDO: 'VENCIDO',
+        A_VENCER: 'A VENCER',
+        ORIGEM_PARCELAMENTO: 'Origem do parcelamento',
+        PAGO: 'Pago',
+        IGNORADO: 'Ignorado'
+    };
+
+    const DEBITOS_DATA_RAW = [
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"IRPJ LUCRO PRESUMIDO 3ª Quota","Competência":"1º Trimestre","Vencimento Original":"06/30/2025","Principal":5080.31,"Multa":1016.06,"Juros":288.56,"Total":6384.93,"Situação":"VENCIDO"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"IRPJ LUCRO PRESUMIDO 1ª Quota","Competência":"2º Trimestre","Vencimento Original":"07/31/2025","Principal":21866.61,"Multa":3030.71,"Juros":472.31,"Total":25369.63,"Situação":"VENCIDO"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"IRPJ LUCRO PRESUMIDO 2ª Quota","Competência":"2º Trimestre","Vencimento Original":"08/29/2025","Principal":21866.61,"Multa":793.75,"Juros":472.31,"Total":23132.67,"Situação":"VENCIDO"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"CSLL DEMAIS 2ª Quota","Competência":"1º Trimestre","Vencimento Original":"05/30/2025","Principal":2631.91,"Multa":526.38,"Juros":149.49,"Total":3307.78,"Situação":"VENCIDO"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"CSLL DEMAIS 3ª Quota","Competência":"1º Trimestre","Vencimento Original":"06/30/2025","Principal":2631.91,"Multa":526.38,"Juros":149.49,"Total":3307.78,"Situação":"VENCIDO"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"CSLL DEMAIS 1ª Quota","Competência":"2º Trimestre","Vencimento Original":"07/31/2025","Principal":8628.94,"Multa":1195.97,"Juros":186.38,"Total":10011.29,"Situação":"VENCIDO"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"CSLL DEMAIS 2ª Quota","Competência":"2º Trimestre","Vencimento Original":"08/29/2025","Principal":8628.93,"Multa":313.23,"Juros":186.38,"Total":9128.54,"Situação":"VENCIDO"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"Contribuições sobre a folha","Competência":"Aug-25","Vencimento Original":"09/19/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":7243.94,"Situação":"A VENCER"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"PIS","Competência":"Aug-25","Vencimento Original":"09/25/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":2368.77,"Situação":"A VENCER"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"COFINS","Competência":"Aug-25","Vencimento Original":"09/25/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":10932.8,"Situação":"A VENCER"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"ISS","Competência":"Aug-25","Vencimento Original":"09/15/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":7288.53,"Situação":"A VENCER"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"ISS (DIVIDA ATIVA)","Competência":"Mar-22","Vencimento Original":"04/18/2022","Principal":2758.98,"Multa":137.95,"Juros":1158.49,"Total":4065.42,"Situação":"VENCIDO"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"CSLL DEMAIS 2ª Quota","Competência":"2º Trimestre","Vencimento Original":"09/30/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":472.31,"Total":22338.92,"Situação":"A VENCER"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"IRPJ LUCRO PRESUMIDO 3ª Quota","Competência":"2º Trimestre","Vencimento Original":"09/30/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":186.38,"Total":8815.31,"Situação":"A VENCER"},
+        {"EMPRESA":"AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)","Nome do Débito":"FGTS","Competência":"Aug-25","Vencimento Original":"09/19/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":1268.55,"Situação":"A VENCER"},
+        {"EMPRESA":"AVANT SPA LTDA - (SC)","Nome do Débito":"PIS","Competência":"Aug-25","Vencimento Original":"09/25/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":437.75,"Situação":"A VENCER"},
+        {"EMPRESA":"AVANT SPA LTDA - (SC)","Nome do Débito":"COFINS","Competência":"Aug-25","Vencimento Original":"09/25/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":2020.37,"Situação":"A VENCER"},
+        {"EMPRESA":"AVANT SPA LTDA - (SC)","Nome do Débito":"Contribuições sobre a folha","Competência":"Aug-25","Vencimento Original":"09/19/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":4573.53,"Situação":"A VENCER"},
+        {"EMPRESA":"AVANT SPA LTDA - (SC)","Nome do Débito":"IRPJ LUCRO PRESUMIDO 1ª Quota","Competência":"2º Trimestre","Vencimento Original":"07/31/2025","Principal":9112.39,"Multa":1262.97,"Juros":196.82,"Total":10572.18,"Situação":"VENCIDO"},
+        {"EMPRESA":"AVANT SPA LTDA - (SC)","Nome do Débito":"IRPJ LUCRO PRESUMIDO 2ª Quota","Competência":"2º Trimestre","Vencimento Original":"08/29/2025","Principal":9112.37,"Multa":330.77,"Juros":196.82,"Total":9639.96,"Situação":"VENCIDO"},
+        {"EMPRESA":"AVANT SPA LTDA - (SC)","Nome do Débito":"IRPJ LUCRO PRESUMIDO 3ª Quota","Competência":"2º Trimestre","Vencimento Original":"09/30/2025","Principal":9112.37,"Multa":" R$ - ","Juros":196.82,"Total":9309.19,"Situação":"A VENCER"},
+        {"EMPRESA":"AVANT SPA LTDA - (SC)","Nome do Débito":"CSLL DEMAIS 1ª Quota","Competência":"2º Trimestre","Vencimento Original":"07/31/2025","Principal":4000.47,"Multa":554.46,"Juros":86.41,"Total":4641.34,"Situação":"VENCIDO"},
+        {"EMPRESA":"AVANT SPA LTDA - (SC)","Nome do Débito":"CSLL DEMAIS 2ª Quota","Competência":"2º Trimestre","Vencimento Original":"08/29/2025","Principal":4000.45,"Multa":145.21,"Juros":86.4,"Total":4232.06,"Situação":"VENCIDO"},
+        {"EMPRESA":"AVANT SPA LTDA - (SC)","Nome do Débito":"CSLL DEMAIS 3ª Quota","Competência":"2º Trimestre","Vencimento Original":"09/30/2025","Principal":4000.45,"Multa":" R$ - ","Juros":86.4,"Total":4086.85,"Situação":"A VENCER"},
+        {"EMPRESA":"AVANT SPA LTDA - (SC)","Nome do Débito":"ISS","Competência":"Aug-25","Vencimento Original":"09/15/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":1608.51,"Situação":"A VENCER"},
+        {"EMPRESA":"AVANT SPA LTDA - (SC)","Nome do Débito":"FGTS","Competência":"Aug-25","Vencimento Original":"09/19/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":882.6,"Situação":"A VENCER"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"PIS","Competência":"Aug-25","Vencimento Original":"09/25/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":416.77,"Situação":"A VENCER"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"COFINS","Competência":"Aug-25","Vencimento Original":"09/25/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":1923.54,"Situação":"A VENCER"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"Contribuições sobre a folha","Competência":"Aug-25","Vencimento Original":"09/19/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":5959.04,"Situação":"A VENCER"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"IRPJ LUCRO PRESUMIDO 1ª Quota","Competência":"2º Trimestre","Vencimento Original":"07/31/2025","Principal":31040.76,"Multa":4302.24,"Juros":670.48,"Total":36013.48,"Situação":"VENCIDO"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"CSLL LUCRO PRESUMIDO 1ª Quota","Competência":"2º Trimestre","Vencimento Original":"07/31/2025","Principal":12067.17,"Multa":1672.5,"Juros":260.65,"Total":14000.32,"Situação":"VENCIDO"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"IRPJ LUCRO PRESUMIDO 2ª Quota","Competência":"2º Trimestre","Vencimento Original":"08/29/2025","Principal":31040.76,"Multa":1126.77,"Juros":670.48,"Total":32838.01,"Situação":"VENCIDO"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"CSLL LUCRO PRESUMIDO 2ª Quota","Competência":"2º Trimestre","Vencimento Original":"08/29/2025","Principal":12067.17,"Multa":438.03,"Juros":260.65,"Total":12765.85,"Situação":"VENCIDO"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"IRPJ LUCRO PRESUMIDO 3ª Quota","Competência":"2º Trimestre","Vencimento Original":"09/30/2025","Principal":31040.76,"Multa":" R$ - ","Juros":670.48,"Total":31711.24,"Situação":"A VENCER"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"ISS","Competência":"Aug-25","Vencimento Original":"09/15/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":7.52,"Total":2281.2,"Situação":"VENCIDO"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"CSLL LUCRO PRESUMIDO 3ª Quota","Competência":"2º Trimestre","Vencimento Original":"09/30/2025","Principal":12067.17,"Multa":" R$ - ","Juros":260.65,"Total":12327.82,"Situação":"A VENCER"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"FGTS","Competência":"Aug-25","Vencimento Original":"09/19/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":747.99,"Situação":"A VENCER"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"Contribuições sobre a folha","Competência":"Aug-25","Vencimento Original":"09/19/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":10685.35,"Situação":"A VENCER"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"PIS","Competência":"Aug-25","Vencimento Original":"09/25/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":9784.25,"Situação":"A VENCER"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"COFINS","Competência":"Aug-25","Vencimento Original":"09/25/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":2119.92,"Situação":"A VENCER"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"IRPJ LUCRO PRESUMIDO 1ª Quota","Competência":"2º Trimestre","Vencimento Original":"07/31/2025","Principal":19435.69,"Multa":2693.78,"Juros":419.81,"Total":22549.28,"Situação":"VENCIDO"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"CSLL LUCRO PRESUMIDO 1ª Quota","Competência":"2º Trimestre","Vencimento Original":"07/31/2025","Principal":8881.76,"Multa":1231.01,"Juros":191.84,"Total":10304.61,"Situação":"VENCIDO"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"IRPJ LUCRO PRESUMIDO 2ª Quota","Competência":"2º Trimestre","Vencimento Original":"08/29/2025","Principal":19435.67,"Multa":705.51,"Juros":419.81,"Total":20560.99,"Situação":"VENCIDO"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"CSLL LUCRO PRESUMIDO 2ª Quota","Competência":"2º Trimestre","Vencimento Original":"08/29/2025","Principal":8881.74,"Multa":322.4,"Juros":191.84,"Total":9395.98,"Situação":"VENCIDO"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"IRPJ LUCRO PRESUMIDO 3ª Quota","Competência":"2º Trimestre","Vencimento Original":"09/30/2025","Principal":19435.67,"Multa":" R$ - ","Juros":419.81,"Total":19855.48,"Situação":"A VENCER"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"CSLL LUCRO PRESUMIDO 3ª Quota","Competência":"2º Trimestre","Vencimento Original":"09/30/2025","Principal":8881.74,"Multa":" R$ - ","Juros":191.84,"Total":9073.58,"Situação":"A VENCER"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"ISS","Competência":"Aug-25","Vencimento Original":"09/15/2025","Principal":6522.69,"Multa":8.23,"Juros":" R$ - ","Total":6530.92,"Situação":"VENCIDO"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"Parcelamento (Valor total R$ 17.494,61)","Competência":"14/34 parcelas","Vencimento Original":"09/30/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":582.4,"Situação":"A VENCER","Column10":"Saldo devedor 12.230,84"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"Multa por Atraso na Entrega da DCTF","Competência":"2023","Vencimento Original":"12/20/2023","Principal":171.61,"Multa":34.32,"Juros":12.04,"Total":217.97,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"Multa por Atraso na Entrega da ECF","Competência":"2023","Vencimento Original":"12/20/2023","Principal":453.17,"Multa":90.63,"Juros":31.81,"Total":575.61,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"Multa por Atraso na Entrega da ECD","Competência":"2023","Vencimento Original":"12/20/2023","Principal":56.64,"Multa":11.32,"Juros":3.97,"Total":71.93,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"Multa por Atraso na Entrega da EFD-Contribuições","Competência":"2023","Vencimento Original":"12/20/2023","Principal":4.53,"Multa":0.9,"Juros":0.31,"Total":5.74,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"Multa por Atraso na Entrega da EFD-Reinf","Competência":"2023","Vencimento Original":"12/20/2023","Principal":13.59,"Multa":2.71,"Juros":0.95,"Total":17.25,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"Multa por Atraso na Entrega da GFIP/SEFIP","Competência":"2023","Vencimento Original":"12/20/2023","Principal":56.64,"Multa":11.32,"Juros":3.97,"Total":71.93,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"Parcelamento - Paes - Pessoa Jurídica","Competência":"Feb-24","Vencimento Original":"04/26/2024","Principal":500,"Multa":0,"Juros":17.65,"Total":517.65,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"IOF","Competência":"2023","Vencimento Original":"12/20/2023","Principal":45.31,"Multa":9.06,"Juros":3.18,"Total":57.55,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"COFINS","Competência":"Feb-24","Vencimento Original":"03/25/2024","Principal":936.33,"Multa":187.26,"Juros":41.38,"Total":1164.97,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"CSLL","Competência":"4º Trimestre/2023","Vencimento Original":"01/31/2024","Principal":650.88,"Multa":130.17,"Juros":39.37,"Total":820.42,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"PIS/Pasep - Faturamento","Competência":"Nov-23","Vencimento Original":"12/20/2023","Principal":5204.64,"Multa":1040.92,"Juros":365.36,"Total":6610.92,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"PIS/Pasep - Faturamento","Competência":"Dec-23","Vencimento Original":"01/19/2024","Principal":5204.64,"Multa":1040.92,"Juros":314.88,"Total":6560.44,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"IRPJ","Competência":"Feb-24","Vencimento Original":"03/25/2024","Principal":202.87,"Multa":40.57,"Juros":8.96,"Total":252.4,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"CP Patronal - Retenção","Competência":"Aug-23","Vencimento Original":"09/20/2023","Principal":423.5,"Multa":84.7,"Juros":41.63,"Total":549.83,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"Parcelamento (Valor total R$48.465,67)","Competência":"02/06 parcelas","Vencimento Original":"09/30/2025","Principal":0,"Multa":0,"Juros":0,"Total":9597.16,"Situação":"A VENCER","Column10":"Saldo devedor 48.465,67"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"IRPJ - Lucro Presumido","Competência":"1º Trimestre/2025","Vencimento Original":"04/30/2025","Principal":24423.39,"Multa":4884.67,"Juros":1103.93,"Total":30411.99,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)","Nome do Débito":"COFINS","Competência":"Mar-25","Vencimento Original":"04/25/2025","Principal":21820.59,"Multa":4364.11,"Juros":986.29,"Total":27170.99,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"Parcelamento (Valor total R$ 62.692,22)","Competência":"01/12 parcelas","Vencimento Original":"09/15/2025","Principal":" R$ - ","Multa":" R$ - ","Juros":" R$ - ","Total":5224.35,"Situação":"A VENCER","Column10":"Saldo devedor 62.692,22"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"ISS","Competência":"May-25","Vencimento Original":"06/10/2025","Principal":51087.03,"Multa":10217.4,"Juros":1164.78,"Total":62469.21,"Situação":"Origem do parcelamento"},
+        {"EMPRESA":"AVANTGARDE CURSOS LTDA - (SP)","Nome do Débito":"ISS","Competência":"Jun-25","Vencimento Original":"07/10/2025","Principal":192.5,"Multa":28.58,"Juros":1.93,"Total":223.01,"Situação":"Origem do parcelamento"}
+    ];
+
+    const planoData = {
+      financeiro: {
+        title: 'Área Financeira e Fiscal',
+        description: 'Ações cruciais para organizar as finanças, garantir a conformidade fiscal e formar a base para a saúde financeira da empresa.',
+        cards: [
+          {
+            title: 'Gestão de Receita e Notas',
+            items: [
+              'Implementar sistema ágil para emissão de notas fiscais de todos os serviços.',
+              'Realizar levantamento completo da situação fiscal e criar plano de regularização de impostos.',
+            ],
+          },
+          {
+            title: 'Gestão de Despesas',
+            items: [
+              'Criar plano de contas para categorizar todas as despesas por empresa e centro de custo.',
+              'Estruturar fluxo de caixa para garantir pagamentos nos prazos e contas corretas.',
+            ],
+          },
+          {
+            title: 'Gestão de Lucros',
+            items: ['Definir uma política clara para retirada de lucros, baseada nos resultados e na disponibilidade de caixa.'],
+          },
+        ],
+      },
+      estoque: {
+        title: 'Gestão de Estoque e Custos Operacionais',
+        description: 'Otimizar a gestão de estoque e entender os custos de cada procedimento são fundamentais para a lucratividade.',
+        sections: [
+          {
+            type: 'flow',
+            title: 'Controle de Estoque e Compras',
+            description: 'Um fluxo de compras bem definido evita desperdícios e garante que o estoque esteja sempre alinhado com a demanda.',
+            steps: ['Auditoria do Estoque Atual', 'Estruturar Controle de Entradas/Saídas', 'Gerir Fluxo de Compras', 'Otimização Contínua'],
+          },
+          {
+            type: 'card',
+            title: 'Controle de Custos por Procedimento',
+            items: [
+              'Desenvolver método para apurar custos variáveis (insumos e mão de obra) de cada procedimento.',
+              'Calcular o custo exato por procedimento para otimizar a precificação e as margens de lucro.',
+            ],
+          },
+        ],
+      },
+      vendas: {
+        title: 'Processo de Vendas e Relacionamento com o Cliente',
+        description: 'A excelência no processo de vendas e a fidelização de clientes são os motores do crescimento sustentável.',
+        sections: [
+          {
+            type: 'flow',
+            title: 'Estrutura do Processo de Venda e Fidelização',
+            description: 'Desde o primeiro contato até o pós-venda, cada passo é uma oportunidade para fortalecer o relacionamento e garantir a satisfação.',
+            steps: ['Contato Inicial e Mapeamento', 'Validação e Confirmação', 'Execução e Entrega', 'Pós-venda e Feedback', 'Programa de Fidelização'],
+            footer: 'Este processo estruturado visa minimizar estornos, que causam prejuízos tributários, de comissão e administrativos.',
+          },
+        ],
+      },
+      patrimonial: {
+        title: 'Levantamento Patrimonial',
+        description: 'Conhecer o valor real da empresa é essencial para a tomada de decisões estratégicas, negociações e planejamento de longo prazo.',
+        cards: [
+          {
+            title: 'Levantamento de Ativos e Passivos',
+            items: ['Realizar uma análise detalhada para identificar e registar todos os bens, direitos (ativos) e obrigações (passivos) da empresa.'],
+          },
+          {
+            title: 'Análise Patrimonial',
+            items: ['Com base no levantamento, apurar a situação patrimonial líquida do grupo, oferecendo uma fotografia precisa de sua saúde financeira e valor de mercado.'],
+          },
+        ],
+      },
+    };
+
+    // --- UTILS ---
+    const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    const parseDate = (d) => {
+        if (typeof d !== 'string' || !d.trim()) return null;
+        const cleanedDateStr = d.trim();
+        const parts = cleanedDateStr.split('/');
+        if (parts.length !== 3) return null;
+        const [month, day, yearStr] = parts;
+        let year = parseInt(yearStr, 10);
+        if (year < 100) { year += 2000; }
+        const date = new Date(year, parseInt(month, 10) - 1, parseInt(day, 10));
+        if (isNaN(date.getTime()) || date.getFullYear() !== year) return null;
+        return date;
+    };
+    const formatDate = (date) => {
+        if (!date) return 'N/A';
+        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+    const parseNumericValue = (val) => {
+        if (typeof val === 'number') return val;
+        if (typeof val === 'string') {
+            const cleaned = val.replace(/R\$\s?/, '').trim();
+            if (cleaned === '' || cleaned === '-') return 0;
+            return parseFloat(cleaned.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+        return 0;
+    };
+    const getCssVar = (varName) => getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    const extractType = (name) => {
+        if (typeof name !== 'string') return 'Outro';
+        const lowerName = name.toLowerCase();
+        if (lowerName.includes('irpj')) return 'IRPJ';
+        if (lowerName.includes('csll')) return 'CSLL';
+        if (lowerName.includes('pis')) return 'PIS';
+        if (lowerName.includes('cofins')) return 'COFINS';
+        if (lowerName.includes('iss')) return 'ISS';
+        if (lowerName.includes('parcelamento')) return 'Parcelamento';
+        if (lowerName.includes('fgts')) return 'FGTS';
+        if (lowerName.includes('iof')) return 'IOF';
+        if (lowerName.includes('contribuições')) return 'Folha';
+        return 'Outro';
+    };
+    const parseInstallmentDetails = (row) => {
+        const competenceRegex = /(\d+)\/(\d+)/;
+        const totalValueRegex = /valor total R\$ ([\d.,]+)/i;
+        const balanceRegex = /saldo devedor ([\d.,]+)/i;
+        const competenceMatch = row['Competência']?.match(competenceRegex);
+        const totalValueMatch = row['Nome do Débito']?.match(totalValueRegex);
+        const balanceMatch = row['Nome do Débito']?.match(balanceRegex) || row.Column10?.match(balanceRegex);
+        return {
+            paidCount: competenceMatch ? parseInt(competenceMatch[1]) : null,
+            totalCount: competenceMatch ? parseInt(competenceMatch[2]) : null,
+            totalValue: totalValueMatch ? parseNumericValue(totalValueMatch[1]) : null,
+            remainingBalance: balanceMatch ? parseNumericValue(balanceMatch[1]) : null,
+        };
+    };
+
+    // --- STATE & DATA PROCESSING ---
+    let state = {
+        isLoading: true,
+        processedData: [],
+        activeCompanies: new Set(),
+        sort: { key: 'vencimento', dir: 'asc' },
+        pagination: { currentPage: 1, itemsPerPage: 10 },
+        filters: { search: '', startDate: '', endDate: '', situacoes: [], tipos: [], chartTipo: null },
+        tempFilters: { search: '', startDate: '', endDate: '', situacoes: [], tipos: [], chartTipo: null },
+        tempActiveCompanies: new Set(),
+        expandedRows: new Set(),
+        selectedRows: new Set(),
+        paginatedIds: [],
+    };
+
+    let allCompanies = [], allSituacoes = [], allTipos = [];
+    let debtByTypeChart, debtByCompanyChart;
+
+    const processData = (rawData) => {
+        const sanitizedData = rawData.map(row => ({...row, Total: row[' Total '] ? row[' Total '] : row.Total}));
+        let idCounter = 0;
+
+        return sanitizedData.reduce((acc, row) => {
+            if (!row.EMPRESA || !row['Nome do Débito']) return acc;
+
+            const commonData = {
+                id: `debt-${idCounter++}`,
+                empresa: row.EMPRESA.trim(),
+                nomeDebito: row['Nome do Débito'],
+                competencia: String(row.Competência),
+                vencimento: row['Vencimento Original'],
+                valor: parseNumericValue(row.Total),
+                situacao: row.Situação,
+                tipo: extractType(row['Nome do Débito'])
+            };
+
+            if (commonData.tipo === 'Parcelamento') {
+                commonData.installmentDetails = parseInstallmentDetails(row);
+            }
+
+            if (row.Situação === STATUS.ORIGEM_PARCELAMENTO) {
+                const lastParcelamento = [...acc].reverse().find(d => d.tipo === 'Parcelamento' && d.empresa === commonData.empresa);
+                if (lastParcelamento) {
+                    if (!lastParcelamento.subRows) lastParcelamento.subRows = [];
+                    lastParcelamento.subRows.push(commonData);
+                } else {
+                    acc.push(commonData);
+                }
+            } else {
+                acc.push(commonData);
+            }
+            return acc;
+        }, []);
+    };
+    
+    // --- DOM Elements ---
+    const dom = {
+        loadingOverlay: document.getElementById('loading-overlay'),
+        kpiCardsContainer: document.getElementById('kpi-cards'),
+        tableHead: document.getElementById('table-head'),
+        tableBody: document.getElementById('table-body'),
+        paginationControls: document.getElementById('pagination-controls'),
+        searchInput: document.getElementById('search-input'),
+        quickFiltersContainer: document.getElementById('quick-filters'),
+        sidebarCompanyList: document.getElementById('sidebar-company-list'),
+        filterBadge: document.getElementById('filter-badge'),
+        bulkActionBar: document.getElementById('bulk-action-bar'),
+        bulkActionCount: document.getElementById('bulk-action-count'),
+        filterDrawer: document.getElementById('filter-drawer'),
+        filterDrawerOverlay: document.getElementById('filter-drawer-overlay'),
+        filterCompanySelect: document.getElementById('filter-company-select'),
+        filterSituacaoSelect: document.getElementById('filter-situacao-select'),
+        filterTipoSelect: document.getElementById('filter-tipo-select'),
+    };
+    
+    // --- RENDER FUNCTIONS ---
+    const renderKPIs = (kpis) => {
+        const kpiData = [
+            { title: "Dívida Ativa", value: formatCurrency(kpis.totalDebt), icon: "landmark", color: "text-[var(--primary-light)]" },
+            { title: "Dívida Vencida", value: formatCurrency(kpis.overdueDebt), icon: "siren", color: "text-[var(--danger)]" },
+            { title: "A Vencer", value: formatCurrency(kpis.upcomingDebt), icon: "calendar-check", color: "text-[var(--warning)]" },
+            { title: "Débitos Filtrados", value: kpis.totalDebtsCount.toString(), icon: "file-stack", color: "text-[var(--success)]" }
+        ];
+        dom.kpiCardsContainer.innerHTML = kpiData.map(kpi => `
+            <div class="kpi-card p-5 flex flex-col">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-semibold text-[var(--text-secondary)] uppercase text-xs tracking-wider">${kpi.title}</h3>
+                    <div class="p-2 rounded-md bg-opacity-10 ${kpi.color.replace('text-', 'bg-')}">
+                        <i data-lucide="${kpi.icon}" class="${kpi.color} w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="mt-2 flex-1 flex items-end">
+                    <p class="kpi-value font-bold text-[var(--text-primary)] kpi-value-update">${kpi.value}</p>
+                </div>
+            </div>
+        `).join('');
+    };
+
+    const renderCharts = (data) => {
+        const textColor = getCssVar('--text-secondary');
+        const gridColor = getCssVar('--border-color');
+
+        // Chart 1: Debt by Type (Donut)
+        const byType = data.reduce((acc, item) => {
+            acc[item.tipo] = (acc[item.tipo] || 0) + item.valor;
+            return acc;
+        }, {});
+        
+        const typeLabels = Object.keys(byType);
+        const typeData = Object.values(byType);
+        const typeColors = [getCssVar('--brand-gem-yellow'), getCssVar('--brand-gold'), '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444', '#22c55e'];
+        
+        const typeCtx = document.getElementById('debtByTypeChart').getContext('2d');
+        if (debtByTypeChart) debtByTypeChart.destroy();
+        debtByTypeChart = new Chart(typeCtx, {
+            type: 'doughnut',
+            data: { labels: typeLabels, datasets: [{ data: typeData, backgroundColor: typeColors, borderColor: getCssVar('--card-bg'), borderWidth: 4 }] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { color: textColor, boxWidth: 12, padding: 15 } },
+                    tooltip: { callbacks: { label: (context) => `${context.label}: ${formatCurrency(context.raw)}` } }
+                },
+                onClick: (_, elements) => {
+                    if (elements.length > 0) {
+                        const clickedLabel = typeLabels[elements[0].index];
+                        state.filters.chartTipo = state.filters.chartTipo === clickedLabel ? null : clickedLabel;
+                        updateDashboard();
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Debt by Company (Bar)
+        const byCompany = data.reduce((acc, item) => {
+            acc[item.empresa] = (acc[item.empresa] || 0) + item.valor;
+            return acc;
+        }, {});
+        
+        const companyLabels = Object.keys(byCompany);
+        const companyData = Object.values(byCompany);
+
+        const companyCtx = document.getElementById('debtByCompanyChart').getContext('2d');
+        if (debtByCompanyChart) debtByCompanyChart.destroy();
+        debtByCompanyChart = new Chart(companyCtx, {
+            type: 'bar',
+            data: {
+                labels: companyLabels,
+                datasets: [{
+                    label: 'Dívida Total',
+                    data: companyData,
+                    backgroundColor: getCssVar('--brand-gold'),
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => formatCurrency(context.raw) } } },
+                scales: {
+                    x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                    y: { ticks: { color: textColor }, grid: { display: false } }
+                }
+            }
+        });
+    };
+
+    const renderTable = (data, totalItems) => {
+        // Header
+        const headers = [
+            { key: 'empresa', label: 'Empresa', className: 'min-w-[200px]' },
+            { key: 'nomeDebito', label: 'Nome do Débito', className: 'min-w-[250px]' },
+            { key: 'vencimento', label: 'Vencimento', className: 'text-center min-w-[100px]' },
+            { key: 'situacao', label: 'Situação', className: 'text-center min-w-[120px]' },
+            { key: 'valor', label: 'Valor Total', className: 'text-right min-w-[120px]' },
+        ];
+        const renderSortIcon = (key) => {
+            if (state.sort.key !== key) return `<i data-lucide="arrow-up-down" class="sort-icon w-3 h-3 ml-2"></i>`;
+            return state.sort.dir === 'asc' ? `<i data-lucide="arrow-up" class="sort-icon active w-3 h-3 ml-2"></i>` : `<i data-lucide="arrow-down" class="sort-icon active w-3 h-3 ml-2"></i>`;
+        };
+        const selectedOnPageCount = data.filter(item => state.selectedRows.has(item.id)).length;
+        const allOnPageSelected = selectedOnPageCount === data.length && data.length > 0;
+
+        dom.tableHead.innerHTML = `
+            <tr>
+                <th class="p-3 w-12 text-center">
+                    <input type="checkbox" class="table-checkbox" id="select-all-checkbox" ${allOnPageSelected ? 'checked' : ''} />
+                </th>
+                <th class="p-3 text-left w-8"></th>
+                ${headers.map(({ key, label, className }) => `
+                    <th class="p-3 text-left ${className || ''}" data-sort-key="${key}">
+                        <div class="flex items-center ${className?.includes('text-right') ? 'justify-end' : ''} ${className?.includes('text-center') ? 'justify-center' : ''}">${label} ${renderSortIcon(key)}</div>
+                    </th>
+                `).join('')}
+            </tr>
+        `;
+        const selectAllCheckbox = dom.tableHead.querySelector('#select-all-checkbox');
+        if(selectAllCheckbox) {
+          selectAllCheckbox.indeterminate = !allOnPageSelected && selectedOnPageCount > 0;
+        }
+
+        // Body
+        if (data.length === 0) {
+            dom.tableBody.innerHTML = `<tr><td colspan="${headers.length + 2}" class="text-center p-8 text-[var(--text-secondary)]">Nenhum resultado encontrado.</td></tr>`;
+        } else {
+            dom.tableBody.innerHTML = data.map(item => {
+                const isExpanded = state.expandedRows.has(item.id);
+                const isSelected = state.selectedRows.has(item.id);
+                const subRowsHtml = isExpanded && item.subRows ? item.subRows.map(subRow => `
+                    <tr class="table-row sub-row">
+                        <td></td><td></td>
+                        <td class="p-3 pl-8 text-[var(--text-secondary)]" colspan="2">
+                            <div class="flex items-center gap-2"><i data-lucide="corner-down-right" class="w-4 h-4 flex-shrink-0"></i><span>${subRow.nomeDebito}</span></div>
+                        </td>
+                        <td class="p-3 text-center text-[var(--text-secondary)]">${formatDate(parseDate(subRow.vencimento))}</td>
+                        <td class="p-3 text-center text-[var(--text-secondary)]"></td>
+                        <td class="p-3 text-right text-[var(--text-secondary)] font-medium">${formatCurrency(subRow.valor)}</td>
+                    </tr>
+                `).join('') : '';
+
+                let nomeDebitoHtml = item.nomeDebito;
+                if (item.tipo === 'Parcelamento' && item.installmentDetails) {
+                    const d = item.installmentDetails;
+                    const progress = d.totalCount > 0 ? (d.paidCount / d.totalCount) * 100 : 0;
+                    nomeDebitoHtml = `
+                        <div>
+                            <p class="font-medium">${item.nomeDebito}</p>
+                            <div class="flex items-center gap-3 mt-2">
+                                <div class="w-24"><div class="progress-bar-container"><div class="progress-bar" style="width: ${progress}%"></div></div></div>
+                                <span class="text-xs font-semibold text-[var(--text-secondary)]">${d.paidCount} / ${d.totalCount} parcelas</span>
+                            </div>
+                            ${d.remainingBalance !== null ? `<p class="text-xs mt-1 text-[var(--text-secondary)]">Saldo Devedor: <span class="font-bold">${formatCurrency(d.remainingBalance)}</span></p>` : ''}
+                        </div>`;
+                }
+                const statusKey = item.situacao.replace(/\s/g, '_');
+
+                return `
+                    <tr class="table-row ${item.situacao === STATUS.VENCIDO ? 'overdue' : ''} ${isSelected ? 'selected' : ''}" data-item-id="${item.id}">
+                        <td class="p-3 text-center"><input type="checkbox" class="table-checkbox row-checkbox" data-item-id="${item.id}" ${isSelected ? 'checked' : ''} /></td>
+                        <td class="p-3 text-center">${item.subRows && item.subRows.length > 0 ? `<button class="p-1 rounded-full hover:bg-[var(--subtle-bg)] expand-btn" data-item-id="${item.id}"><i data-lucide="${isExpanded ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4"></i></button>` : ''}</td>
+                        <td class="p-3 font-medium">${item.empresa}</td>
+                        <td class="p-3">${nomeDebitoHtml}</td>
+                        <td class="p-3 text-center">${formatDate(parseDate(item.vencimento))}</td>
+                        <td class="p-3 text-center"><span class="status-badge status-${statusKey}">${item.situacao}</span></td>
+                        <td class="p-3 text-right font-semibold">${formatCurrency(item.valor)}</td>
+                    </tr>
+                    ${subRowsHtml}
+                `;
+            }).join('');
+        }
+
+        // Pagination
+        const { currentPage, itemsPerPage } = state.pagination;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        if (totalPages > 1) {
+            dom.paginationControls.innerHTML = `
+                <span class="text-sm text-[var(--text-secondary)]">Mostrando ${Math.min(itemsPerPage * (currentPage - 1) + 1, totalItems)} a ${Math.min(itemsPerPage * currentPage, totalItems)} de ${totalItems} resultados</span>
+                <div class="flex items-center gap-2">
+                    <button id="prev-page-btn" class="pagination-btn p-2 rounded-md" ${currentPage === 1 ? 'disabled' : ''}><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                    <span class="text-sm font-medium px-2">Página ${currentPage} de ${totalPages}</span>
+                    <button id="next-page-btn" class="pagination-btn p-2 rounded-md" ${currentPage === totalPages ? 'disabled' : ''}><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                </div>
+            `;
+        } else {
+            dom.paginationControls.innerHTML = '';
+        }
+    };
+    
+    const renderQuickFilters = () => {
+        const options = [
+            { label: 'Todos', value: [] }, { label: 'Vencidos', value: [STATUS.VENCIDO] }, { label: 'A Vencer', value: [STATUS.A_VENCER] },
+            { label: 'Pagos', value: [STATUS.PAGO] }, { label: 'Ignorados', value: [STATUS.IGNORADO] },
+        ];
+        const selectedValueString = JSON.stringify(state.filters.situacoes.sort());
+        dom.quickFiltersContainer.innerHTML = `
+            <h4 class="text-sm font-semibold text-[var(--text-secondary)] mr-2 flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4"></i>Filtros Rápidos:</h4>
+            ${options.map(({ label, value }) => {
+                const isActive = JSON.stringify(value.sort()) === selectedValueString;
+                return `<button class="quick-filter-btn ${isActive ? 'active' : ''}" data-situacoes='${JSON.stringify(value)}'>${label}</button>`;
+            }).join('')}
+        `;
+    };
+
+    const renderSidebar = () => {
+        dom.sidebarCompanyList.innerHTML = `
+            <h3 class="text-xs font-semibold text-[var(--text-tertiary)] uppercase px-3 mt-4 mb-2">Empresas</h3>
+            <label class="sidebar-label flex items-center gap-3 px-3 py-2 cursor-pointer rounded-md">
+                <input type="checkbox" id="select-all-companies" class="w-5 h-5 rounded" ${state.activeCompanies.size === allCompanies.length && allCompanies.length > 0 ? 'checked' : ''} />
+                <span class="text-sm font-medium">Selecionar todas</span>
+            </label>
+            ${allCompanies.map(c => `
+                <label class="sidebar-label flex items-start gap-3 rounded-md px-3 py-2.5 text-sm font-medium cursor-pointer">
+                    <input type="checkbox" class="w-5 h-5 rounded mt-0.5 company-checkbox" value="${c}" ${state.activeCompanies.has(c) ? 'checked' : ''} />
+                    <i data-lucide="building-2" class="w-5 h-5 text-[var(--primary-light)] flex-shrink-0 mt-0.5"></i>
+                    <span>${c}</span>
+                </label>
+            `).join('')}
+        `;
+    };
+    
+    const createCustomMultiSelect = (id, options, selected, placeholder) => {
+        const selectedStr = selected.length > 0 ? selected.join(', ') : placeholder;
+        return `
+            <div class="custom-select-container" id="select-${id}">
+                <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="truncate pr-2">${selectedStr}</span>
+                    <i data-lucide="chevrons-up-down" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
+                </button>
+                <div class="custom-select-options" role="listbox">
+                    ${options.map(option => `
+                        <label class="custom-select-option">
+                            <input type="checkbox" class="w-4 h-4 rounded" value="${option}" ${selected.includes(option) ? 'checked' : ''}/>
+                            <span>${option}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            </div>`;
+    };
+
+    const renderFilterDrawer = () => {
+        dom.filterCompanySelect.innerHTML = `<label class="block text-sm font-medium mb-1.5">Empresa</label>${createCustomMultiSelect('company', allCompanies, Array.from(state.tempActiveCompanies), 'Todas as empresas')}`;
+        dom.filterSituacaoSelect.innerHTML = `<label class="block text-sm font-medium mb-1.5">Situação do Débito</label>${createCustomMultiSelect('situacao', allSituacoes, state.tempFilters.situacoes, 'Todas as situações')}`;
+        dom.filterTipoSelect.innerHTML = `<label class="block text-sm font-medium mb-1.5">Tipo de Débito</label>${createCustomMultiSelect('tipo', allTipos, state.tempFilters.tipos, 'Todos os tipos')}`;
+        document.getElementById('startDate').value = state.tempFilters.startDate;
+        document.getElementById('endDate').value = state.tempFilters.endDate;
+    };
+    
+    // --- APP LOGIC ---
+    const updateDashboard = () => {
+        // Filter
+        const parentRows = state.processedData.filter(item => item.situacao !== STATUS.ORIGEM_PARCELAMENTO);
+        const filteredData = parentRows.filter(item => {
+            if (!state.activeCompanies.has(item.empresa)) return false;
+            const searchLower = state.filters.search.toLowerCase();
+            if (searchLower && !item.empresa.toLowerCase().includes(searchLower) && !item.nomeDebito.toLowerCase().includes(searchLower)) return false;
+            const vencimentoDate = parseDate(item.vencimento);
+            if (state.filters.startDate || state.filters.endDate) {
+                if (!vencimentoDate) return false;
+                if (state.filters.startDate && vencimentoDate < new Date(state.filters.startDate + 'T00:00:00')) return false;
+                if (state.filters.endDate && vencimentoDate > new Date(state.filters.endDate + 'T23:59:59')) return false;
+            }
+            if (state.filters.situacoes.length > 0 && !state.filters.situacoes.includes(item.situacao)) return false;
+            if (state.filters.tipos.length > 0 && !state.filters.tipos.includes(item.tipo)) return false;
+            if (state.filters.chartTipo && item.tipo !== state.filters.chartTipo) return false;
+            return true;
+        });
+
+        // Sort
+        const sortedData = [...filteredData].sort((a, b) => {
+            const valA = a[state.sort.key];
+            const valB = b[state.sort.key];
+            let compare = 0;
+            if (state.sort.key === 'vencimento') {
+                const dateA = parseDate(valA)?.getTime() || 0;
+                const dateB = parseDate(valB)?.getTime() || 0;
+                compare = dateA - dateB;
+            } else if (typeof valA === 'number' && typeof valB === 'number') {
+                compare = valA - valB;
+            } else {
+                compare = String(valA).localeCompare(String(valB));
+            }
+            return state.sort.dir === 'asc' ? compare : -compare;
+        });
+
+        // Paginate
+        const start = (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
+        const paginatedData = sortedData.slice(start, start + state.pagination.itemsPerPage);
+        state.paginatedIds = paginatedData.map(item => item.id);
+
+        // Calculate KPIs
+        const activeDebt = filteredData.filter(item => item.situacao === STATUS.VENCIDO || item.situacao === STATUS.A_VENCER);
+        let filterCount = 0;
+        if (state.filters.startDate || state.filters.endDate) filterCount++;
+        if (state.filters.situacoes.length > 0) filterCount++;
+        if (state.filters.tipos.length > 0) filterCount++;
+        if (allCompanies.length > 0 && state.activeCompanies.size < allCompanies.length) filterCount++;
+        const kpis = {
+            totalDebt: activeDebt.reduce((acc, item) => acc + item.valor, 0),
+            overdueDebt: activeDebt.reduce((acc, item) => acc + (item.situacao === STATUS.VENCIDO ? item.valor : 0), 0),
+            upcomingDebt: activeDebt.reduce((acc, item) => acc + (item.situacao === STATUS.A_VENCER ? item.valor : 0), 0),
+            totalDebtsCount: filteredData.length,
+        };
+
+        // Render UI
+        renderKPIs(kpis);
+        renderCharts(filteredData);
+        renderTable(paginatedData, sortedData.length);
+        renderQuickFilters();
+
+        dom.filterBadge.textContent = filterCount;
+        dom.filterBadge.classList.toggle('hidden', filterCount === 0);
+        dom.filterBadge.classList.toggle('flex', filterCount > 0);
+
+        dom.bulkActionBar.classList.toggle('show', state.selectedRows.size > 0);
+        dom.bulkActionCount.textContent = `${state.selectedRows.size} selecionado(s)`;
+
+        lucide.createIcons();
+    };
+    
+    const initDashboard = () => {
+        dom.loadingOverlay.classList.add('show');
+        setTimeout(() => {
+            state.processedData = processData(DEBITOS_DATA_RAW);
+            allCompanies = [...new Set(state.processedData.map(d => d.empresa).filter(Boolean))].sort();
+            allSituacoes = [...new Set([...state.processedData.map(d => d.situacao).filter(s => s !== STATUS.ORIGEM_PARCELAMENTO), STATUS.PAGO, STATUS.IGNORADO])].sort();
+            allTipos = [...new Set(state.processedData.map(d => d.tipo))].sort();
+
+            state.activeCompanies = new Set(allCompanies);
+            state.tempActiveCompanies = new Set(allCompanies);
+
+            renderSidebar();
+            renderFilterDrawer();
+            updateDashboard();
+            dom.loadingOverlay.classList.remove('show');
+        }, 500);
+    };
+
+    // --- Plano Estratégico Logic ---
+    const renderPlanoContent = (sectionKey) => {
+        const data = planoData[sectionKey];
+        const contentEl = document.getElementById('plano-content');
+        
+        let html = `
+            <h2 class="text-3xl font-bold text-[var(--brand-dark-blue)] mb-2">${data.title}</h2>
+            <p class="text-[var(--text-secondary)] mb-8 max-w-3xl">${data.description}</p>`;
+        
+        if (data.cards) {
+            html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">`;
+            data.cards.forEach(card => {
+                html += `
+                    <div class="content-card p-6">
+                        <h3 class="font-bold text-lg text-[var(--brand-dark-blue)] mb-4">${card.title}</h3>
+                        <ul class="space-y-3 text-[var(--text-secondary)]">
+                            ${card.items.map(item => `
+                                <li>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                    <span>${item}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>`;
+            });
+            html += `</div>`;
+        }
+
+        if (data.sections) {
+            html += `<div class="space-y-8 mt-8">`;
+            data.sections.forEach(section => {
+                let sectionContentHtml = '';
+                if (section.type === 'flow') {
+                    sectionContentHtml = `
+                        <div class="flex items-stretch gap-2 sm:gap-4 flex-wrap">
+                            ${section.steps.map((step, index) => `
+                                <div class="flex-1 flow-step min-w-[120px]">${step}</div>
+                                ${index < section.steps.length - 1 ? `<div class="flow-arrow hidden sm:flex"><i data-lucide="arrow-right" class="w-6 h-6"></i></div>` : ''}
+                            `).join('')}
+                        </div>
+                        ${section.footer ? `<p class="text-sm text-[var(--text-tertiary)] mt-4 text-center">${section.footer}</p>` : ''}`;
+                } else if (section.type === 'card') {
+                    sectionContentHtml = `
+                        <ul class="space-y-3 text-[var(--text-secondary)]">
+                            ${section.items.map(item => `
+                                <li>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                    <span>${item}</span>
+                                </li>
+                            `).join('')}
+                        </ul>`;
+                }
+
+                html += `
+                    <div class="content-card p-6">
+                        <h3 class="font-bold text-lg text-[var(--brand-dark-blue)] mb-2">${section.title}</h3>
+                        ${section.description ? `<p class="text-[var(--text-secondary)] mb-6">${section.description}</p>` : ''}
+                        ${sectionContentHtml}
+                    </div>`;
+            });
+            html += `</div>`;
+        }
+        
+        contentEl.innerHTML = html;
+        lucide.createIcons();
+    };
+
+    const initPlano = () => {
+        const subNavEl = document.getElementById('plano-subnav');
+        const sections = [
+            { key: 'financeiro', label: 'Financeiro e Fiscal' },
+            { key: 'estoque', label: 'Estoque e Custos' },
+            { key: 'vendas', label: 'Vendas e Clientes' },
+            { key: 'patrimonial', label: 'Patrimonial' },
+        ];
+        subNavEl.innerHTML = sections.map(s => `<button data-section="${s.key}" class="sub-nav-button px-4 py-2.5 text-sm font-medium rounded-lg ${s.key === 'financeiro' ? 'active' : ''}">${s.label}</button>`).join('');
+        
+        renderPlanoContent('financeiro');
+
+        subNavEl.addEventListener('click', (e) => {
+            const button = e.target.closest('button');
+            if (button && button.dataset.section) {
+                subNavEl.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                renderPlanoContent(button.dataset.section);
+            }
+        });
+    };
+
+    // --- EVENT LISTENERS ---
+    const addEventListeners = () => {
+        // Main View Navigation
+        document.querySelector('header nav').addEventListener('click', e => {
+            const button = e.target.closest('button');
+            if (button && button.dataset.view) {
+                const view = button.dataset.view;
+                document.body.className = `${view}-active`;
+                document.querySelectorAll('.main-nav-button').forEach(b => b.classList.remove('active'));
+                button.classList.add('active');
+                if (view === 'dashboard' && state.processedData.length === 0) {
+                    initDashboard();
+                }
+            }
+        });
+
+        // Dashboard Listeners
+        dom.searchInput.addEventListener('input', e => {
+            state.filters.search = e.target.value;
+            state.pagination.currentPage = 1;
+            updateDashboard();
+        });
+
+        document.getElementById('refresh-data-btn').addEventListener('click', () => {
+             state.selectedRows.clear();
+             initDashboard();
+        });
+
+        dom.quickFiltersContainer.addEventListener('click', e => {
+            const button = e.target.closest('.quick-filter-btn');
+            if (button) {
+                state.filters.situacoes = JSON.parse(button.dataset.situacoes);
+                state.pagination.currentPage = 1;
+                updateDashboard();
+            }
+        });
+
+        dom.tableHead.addEventListener('click', e => {
+            const th = e.target.closest('th[data-sort-key]');
+            if (th) {
+                const key = th.dataset.sortKey;
+                const newDir = state.sort.key === key && state.sort.dir === 'asc' ? 'desc' : 'asc';
+                state.sort = { key, dir: newDir };
+                state.pagination.currentPage = 1;
+                updateDashboard();
+            }
+            if (e.target.id === 'select-all-checkbox') {
+                const isChecked = e.target.checked;
+                const paginatedIds = state.paginatedIds;
+                if (isChecked) {
+                    paginatedIds.forEach(id => state.selectedRows.add(id));
+                } else {
+                    paginatedIds.forEach(id => state.selectedRows.delete(id));
+                }
+                updateDashboard();
+            }
+        });
+
+        dom.tableBody.addEventListener('click', e => {
+            const expandBtn = e.target.closest('.expand-btn');
+            if (expandBtn) {
+                const id = expandBtn.dataset.itemId;
+                if (state.expandedRows.has(id)) state.expandedRows.delete(id);
+                else state.expandedRows.add(id);
+                updateDashboard();
+            }
+            const checkbox = e.target.closest('.row-checkbox');
+            if(checkbox){
+                const id = checkbox.dataset.itemId;
+                if(checkbox.checked) state.selectedRows.add(id);
+                else state.selectedRows.delete(id);
+                updateDashboard();
+            }
+        });
+
+        dom.paginationControls.addEventListener('click', e => {
+            const prevBtn = e.target.closest('#prev-page-btn');
+            const nextBtn = e.target.closest('#next-page-btn');
+            if (prevBtn) state.pagination.currentPage--;
+            if (nextBtn) state.pagination.currentPage++;
+            updateDashboard();
+        });
+        
+        dom.sidebarCompanyList.addEventListener('change', e => {
+            if (e.target.id === 'select-all-companies') {
+                if (e.target.checked) state.activeCompanies = new Set(allCompanies);
+                else state.activeCompanies.clear();
+                state.pagination.currentPage = 1;
+                renderSidebar();
+                updateDashboard();
+            } else if (e.target.classList.contains('company-checkbox')) {
+                const company = e.target.value;
+                if (e.target.checked) state.activeCompanies.add(company);
+                else state.activeCompanies.delete(company);
+                state.pagination.currentPage = 1;
+                updateDashboard();
+                renderSidebar(); // to update select-all checkbox
+            }
+        });
+
+        // Filter Drawer Logic
+        const toggleFilterDrawer = (open) => {
+            dom.filterDrawer.classList.toggle('open', open);
+            dom.filterDrawerOverlay.classList.toggle('open', open);
+        };
+
+        document.getElementById('open-filter-drawer-btn').addEventListener('click', () => {
+            state.tempFilters = { ...state.filters };
+            state.tempActiveCompanies = new Set(state.activeCompanies);
+            renderFilterDrawer();
+            toggleFilterDrawer(true);
+        });
+
+        document.getElementById('close-filter-drawer-btn').addEventListener('click', () => toggleFilterDrawer(false));
+        dom.filterDrawerOverlay.addEventListener('click', () => toggleFilterDrawer(false));
+
+        document.getElementById('apply-filters-btn').addEventListener('click', () => {
+            state.filters = state.tempFilters;
+            state.activeCompanies = state.tempActiveCompanies;
+            state.pagination.currentPage = 1;
+            updateDashboard();
+            renderSidebar();
+            toggleFilterDrawer(false);
+        });
+        
+        document.getElementById('clear-filters-btn').addEventListener('click', () => {
+            state.tempFilters = { search: state.filters.search, startDate: '', endDate: '', situacoes: [], tipos: [], chartTipo: state.filters.chartTipo };
+            state.tempActiveCompanies = new Set(allCompanies);
+            renderFilterDrawer();
+        });
+
+        // Custom select logic inside filter drawer
+        dom.filterDrawer.addEventListener('click', e => {
+            const trigger = e.target.closest('.custom-select-trigger');
+            if (trigger) {
+                const container = trigger.closest('.custom-select-container');
+                container.classList.toggle('open');
+            }
+        });
+
+        document.addEventListener('mousedown', (event) => {
+            document.querySelectorAll('.custom-select-container.open').forEach(container => {
+                if (!container.contains(event.target)) {
+                    container.classList.remove('open');
+                }
+            });
+        });
+
+        dom.filterDrawer.addEventListener('change', e => {
+            const checkbox = e.target.closest('.custom-select-option input');
+            if (checkbox) {
+                const container = checkbox.closest('.custom-select-container');
+                const id = container.id.split('-')[1];
+                const value = checkbox.value;
+                if (id === 'company') {
+                    if (checkbox.checked) state.tempActiveCompanies.add(value);
+                    else state.tempActiveCompanies.delete(value);
+                } else { // situacao or tipo
+                    const currentArray = state.tempFilters[id+'s'];
+                    const newArray = checkbox.checked ? [...currentArray, value] : currentArray.filter(v => v !== value);
+                    state.tempFilters[id+'s'] = newArray;
+                }
+                renderFilterDrawer(); // Re-render to update the display
+            }
+        });
+        
+        document.getElementById('startDate').addEventListener('change', e => state.tempFilters.startDate = e.target.value);
+        document.getElementById('endDate').addEventListener('change', e => state.tempFilters.endDate = e.target.value);
+
+        // Bulk Actions
+        document.getElementById('bulk-action-paid').addEventListener('click', () => {
+            state.processedData.forEach(item => { if (state.selectedRows.has(item.id)) item.situacao = STATUS.PAGO; });
+            state.selectedRows.clear();
+            updateDashboard();
+        });
+        document.getElementById('bulk-action-ignore').addEventListener('click', () => {
+            state.processedData.forEach(item => { if (state.selectedRows.has(item.id)) item.situacao = STATUS.IGNORADO; });
+            state.selectedRows.clear();
+            updateDashboard();
+        });
+        document.getElementById('bulk-action-clear').addEventListener('click', () => {
+            state.selectedRows.clear();
+            updateDashboard();
+        });
+
+        document.getElementById('clear-tipo-filter-btn').addEventListener('click', () => {
+            state.filters.chartTipo = null;
+            updateDashboard();
+        });
+    };
+
+    // --- INITIALIZATION ---
+    initPlano();
+    addEventListeners();
+    lucide.createIcons();
+});
+</script>
 </body>
 </html>
