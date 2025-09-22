@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Sete Soluções Fiscais</title>
+    <title>Dashboard Fiscal | Avant Garde Group</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
@@ -26,7 +26,7 @@
             /* Light Theme - REFINED */
             --background: #f7f8fc;
             --card-bg: #ffffff;
-            --subtle-bg: #f8f9fa;
+            --subtle-bg: #f0f2f8;
             --text-primary: #111827;
             --text-secondary: #4b5563;
             --text-tertiary: #9ca3af;
@@ -46,18 +46,18 @@
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
-            --border-radius: 0.75rem;
+            --border-radius: 0.875rem; /* Softer radius */
         }
 
         /* Dark Theme Variables */
         html.dark-theme {
-            --background: #0d1117;
-            --card-bg: #161b22;
+            --background: #0a0e13;
+            --card-bg: #141920;
             --subtle-bg: #1c2128;
             --text-primary: #e6edf3;
-            --text-secondary: #84909c;
+            --text-secondary: #909da9;
             --text-tertiary: #6e7681;
-            --border-color: #30363d;
+            --border-color: #2a3038;
 
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.15);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.18), 0 2px 4px -2px rgb(0 0 0 / 0.18);
@@ -72,6 +72,8 @@
             color: var(--text-primary); 
             -webkit-font-smoothing: antialiased; 
             -moz-osx-font-smoothing: grayscale;
+            background-image: linear-gradient(180deg, var(--background) 0%, var(--subtle-bg) 100vh);
+            background-repeat: no-repeat;
         }
         ::selection { background-color: var(--primary-bg); }
 
@@ -105,12 +107,6 @@
             pointer-events: none;
         }
         
-        /* Logo */
-        .logo-set-container { font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 0.5rem; }
-        .logo-set-main { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--brand-dark-blue); font-size: 2.25rem; letter-spacing: 0.05em; }
-        .logo-set-sub { font-size: 0.6rem; font-weight: 500; letter-spacing: 0.1em; color: var(--text-secondary); text-transform: uppercase; line-height: 1.2; }
-        html.dark-theme .logo-set-main { color: var(--text-primary); }
-
         /* Layout: Header & Sidebar */
         .app-header { 
             background-color: color-mix(in srgb, var(--card-bg) 95%, transparent);
@@ -119,18 +115,19 @@
         }
         /* Nav Tabs */
         .nav-tab {
-            padding: 0 0.5rem;
-            height: 100%;
-            border-bottom: 2px solid transparent;
-            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
             font-weight: 600;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
         }
         .nav-tab:hover {
             color: var(--primary-fg);
+            background-color: var(--primary-bg-hover);
         }
         .nav-tab.active {
             color: var(--primary-fg);
-            border-bottom-color: var(--primary-fg);
+            background-color: var(--primary-bg);
         }
 
         .sidebar { background-color: var(--card-bg); border-right: 1px solid var(--border-color); }
@@ -153,12 +150,12 @@
         .kpi-card::after {
             content: '';
             position: absolute;
-            top: -50px; right: -50px;
-            width: 150px; height: 150px;
-            background-color: var(--kpi-border-color, var(--primary-fg));
-            opacity: 0.05;
-            border-radius: 50%;
+            top: -80px; right: -80px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, color-mix(in srgb, var(--kpi-border-color) 15%, transparent) 0%, transparent 70%);
+            opacity: 0.5;
             transition: all 0.4s ease;
+            pointer-events: none;
         }
         .kpi-card:hover { 
             transform: translateY(-4px); 
@@ -166,8 +163,8 @@
             border-color: var(--kpi-border-color);
         }
         .kpi-card:hover::after {
-            transform: scale(1.2);
-            opacity: 0.1;
+            transform: scale(1.3);
+            opacity: 0.7;
         }
         .chart-card { padding: 1.5rem; }
         .content-card { box-shadow: var(--shadow-md); }
@@ -190,14 +187,20 @@
             cursor: pointer; 
             user-select: none; 
             border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         .table-row { 
             border-bottom: 1px solid var(--border-color); 
             transition: background-color 0.2s ease, box-shadow 0.2s ease; 
         }
+        .table-row:not(.sub-row):nth-child(even) { 
+            background-color: var(--subtle-bg);
+        }
         tbody tr:last-child { border-bottom: none; }
         .table-row:not(.sub-row):hover { 
-            background-color: color-mix(in srgb, var(--primary-fg) 5%, transparent); 
+            background-color: color-mix(in srgb, var(--primary-fg) 8%, transparent);
             box-shadow: inset 3px 0 0 0 var(--primary-fg);
         }
         .table-row.selected { background-color: var(--primary-bg) !important; box-shadow: inset 3px 0 0 0 var(--primary-fg); }
@@ -354,15 +357,17 @@
 <body>
     <div id="app-container" class="flex flex-col h-screen bg-[var(--background)]">
         <header class="app-header border-b border-[var(--border-color)] px-4 sm:px-6 lg:px-8 flex justify-between items-center sticky top-0 z-30 shrink-0 h-16">
-            <div class="flex items-center gap-4">
-                <div class="logo-set-container">
-                    <div class="logo-set-main">SETE</div>
-                    <div class="logo-set-sub">Soluções<br>Fiscais</div>
+            <div class="flex items-center gap-3">
+                <div class="font-bold tracking-[0.2em] leading-none text-[var(--text-primary)]">
+                    <div class="text-xl">AVANT</div>
+                    <div class="text-xl">GARDE</div>
                 </div>
+                <div class="h-8 w-px bg-[var(--border-color)]"></div>
+                <div class="text-sm font-semibold tracking-[0.2em] text-[var(--text-secondary)]">GROUP</div>
             </div>
-            <nav class="flex items-center justify-center gap-4 h-full">
-                 <button id="nav-dashboard-btn" class="nav-tab btn">Dashboard Fiscal</button>
-                 <button id="nav-parcelamento-btn" class="nav-tab btn">Plano de Parcelamento</button>
+            <nav class="flex items-center justify-center gap-2 h-full bg-[var(--subtle-bg)] p-1 rounded-lg">
+                 <button id="nav-dashboard-btn" class="nav-tab">Dashboard Fiscal</button>
+                 <button id="nav-parcelamento-btn" class="nav-tab">Plano de Parcelamento</button>
             </nav>
             <div class="flex items-center gap-4 h-full">
                 <button id="theme-toggle-btn" class="p-2 rounded-md hover:bg-[var(--primary-bg)] transition-colors" aria-label="Toggle theme">
@@ -379,11 +384,13 @@
                 </div>
                 
                 <aside id="sidebar-dashboard" class="sidebar w-72 flex-shrink-0 p-4 flex-col fixed inset-y-0 left-0 z-40 transition-transform -translate-x-full lg:translate-x-0 lg:flex">
-                    <div class="flex items-center gap-3 mb-10 px-2 pt-4">
-                        <div class="logo-set-container">
-                            <div class="logo-set-main">SETE</div>
-                            <div class="logo-set-sub">Soluções<br>Fiscais</div>
+                    <div class="flex items-center gap-4 mb-10 px-2 pt-4">
+                        <div class="font-bold tracking-[0.2em] leading-none text-[var(--text-primary)]">
+                            <div class="text-2xl">AVANT</div>
+                            <div class="text-2xl">GARDE</div>
                         </div>
+                        <div class="h-10 w-px bg-[var(--border-color)]"></div>
+                        <div class="text-base font-semibold tracking-[0.2em] text-[var(--text-secondary)]">GROUP</div>
                     </div>
                     <nav id="sidebar-company-list" class="flex flex-col gap-1 flex-1 overflow-y-auto pr-2"></nav>
                 </aside>
@@ -392,7 +399,7 @@
                     <main class="flex-1 p-4 sm:p-6 lg:p-8 animate-fade-in">
                         <div class="mb-8">
                             <h1 class="text-3xl font-bold text-[var(--text-primary)]">Dashboard Fiscal</h1>
-                            <p class="text-[var(--text-secondary)] mt-1">Análise detalhada da situação fiscal das empresas.</p>
+                            <p class="text-[var(--text-secondary)] mt-1">Análise detalhada da situação fiscal das empresas do <span class="font-semibold text-[var(--text-primary)]">Grupo Avant Garde</span>.</p>
                         </div>
 
                         <section id="kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8"></section>
@@ -436,7 +443,7 @@
                              <div id="quick-filters" class="flex items-center gap-2 flex-wrap"></div>
                         </div>
                         <div class="table-container">
-                            <div class="overflow-x-auto">
+                             <div class="overflow-auto" style="max-height: calc(100vh - 460px);">
                                 <table class="w-full text-sm">
                                     <thead id="table-head" class="table-header"></thead>
                                     <tbody id="table-body"></tbody>
@@ -527,141 +534,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const DEBITOS_DATA_RAW = [
          {
           "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
-          "Nome do Débito": "COFINS",
-          "Competência": "08/2025",
-          "Vencimento Original": "25/09/2025",
-          "Principal": 0,
-          "Multa": 0,
-          "Juros": 0,
-          "Total": 10932.8,
-          "Situação": "A VENCER"
-         },
-         {
-          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
-          "Nome do Débito": "Contribuições sobre a folha",
-          "Competência": "08/2025",
-          "Vencimento Original": "19/09/2025",
-          "Principal": 0,
-          "Multa": 0,
-          "Juros": 0,
-          "Total": 7243.94,
-          "Situação": "A VENCER"
-         },
-         {
-          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
-          "Nome do Débito": "IRPJ LUCRO PRESUMIDO 3ª Quota",
-          "Competência": "1º Trimestre",
-          "Vencimento Original": "30/06/2025",
-          "Principal": 5080.31,
-          "Multa": 1016.06,
-          "Juros": 288.56,
-          "Total": 6384.93,
-          "Situação": "VENCIDO"
-         },
-         {
-          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
-          "Nome do Débito": "IRPJ LUCRO PRESUMIDO 1ª Quota",
-          "Competência": "2º Trimestre",
-          "Vencimento Original": "31/07/2025",
-          "Principal": 21866.61,
-          "Multa": 3463.67,
-          "Juros": 472.31,
-          "Total": 25802.59,
-          "Situação": "VENCIDO"
-         },
-         {
-          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
-          "Nome do Débito": "IRPJ LUCRO PRESUMIDO 2ª Quota",
-          "Competência": "2º Trimestre",
-          "Vencimento Original": "29/08/2025",
-          "Principal": 21866.61,
-          "Multa": 1226.71,
-          "Juros": 472.31,
-          "Total": 23565.63,
-          "Situação": "VENCIDO"
-         },
-         {
-          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
-          "Nome do Débito": "IRPJ LUCRO PRESUMIDO 3ª Quota",
-          "Competência": "2º Trimestre",
-          "Vencimento Original": "30/09/2025",
-          "Principal": 21866.61,
-          "Multa": 0,
-          "Juros": 472.31,
-          "Total": 22338.92,
-          "Situação": "A VENCER"
-         },
-         {
-          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
-          "Nome do Débito": "CSLL DEMAIS 2ª Quota",
-          "Competência": "1º Trimestre",
-          "Vencimento Original": "30/05/2025",
-          "Principal": 2631.91,
-          "Multa": 526.38,
-          "Juros": 149.49,
-          "Total": 3307.78,
-          "Situação": "VENCIDO"
-         },
-         {
-          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
-          "Nome do Débito": "FGTS",
-          "Competência": "08/2025",
-          "Vencimento Original": "19/09/2025",
-          "Principal": 0,
-          "Multa": 0,
-          "Juros": 0,
-          "Total": 1268.55,
-          "Situação": "A VENCER"
-         },
-         {
-          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
-          "Nome do Débito": "CSLL DEMAIS 3ª Quota",
-          "Competência": "1º Trimestre",
-          "Vencimento Original": "30/06/2025",
-          "Principal": 2631.91,
-          "Multa": 526.38,
-          "Juros": 149.49,
-          "Total": 3307.78,
-          "Situação": "VENCIDO"
-         },
-         {
-          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
-          "Nome do Débito": "CSLL DEMAIS 1ª Quota",
-          "Competência": "2º Trimestre",
-          "Vencimento Original": "31/07/2025",
-          "Principal": 8628.94,
-          "Multa": 1366.82,
-          "Juros": 186.38,
-          "Total": 10182.14,
-          "Situação": "VENCIDO"
-         },
-         {
-          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
-          "Nome do Débito": "CSLL DEMAIS 2ª Quota",
-          "Competência": "2º Trimestre",
-          "Vencimento Original": "29/08/2025",
-          "Principal": 8628.93,
-          "Multa": 484.08,
-          "Juros": 186.38,
-          "Total": 9299.39,
-          "Situação": "VENCIDO"
-         },
-         {
-          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
-          "Nome do Débito": "CSLL DEMAIS 3ª Quota",
-          "Competência": "2º Trimestre",
-          "Vencimento Original": "30/09/2025",
-          "Principal": 8628.93,
-          "Multa": 0,
-          "Juros": 186.38,
-          "Total": 8815.31,
-          "Situação": "A VENCER"
-         },
-         {
-          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
           "Nome do Débito": "ISS (DIVIDA ATIVA)",
           "Competência": "03/2022",
-          "Vencimento Original": "18/04/2022",
+          "Vencimento Original": "04/18/2022",
           "Principal": 2758.98,
           "Multa": 137.95,
           "Juros": 1158.49,
@@ -670,9 +545,20 @@ document.addEventListener('DOMContentLoaded', () => {
          },
          {
           "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
+          "Nome do Débito": "COFINS",
+          "Competência": "08/2025",
+          "Vencimento Original": "09/25/2025",
+          "Principal": 0,
+          "Multa": 0,
+          "Juros": 0,
+          "Total": 10932.8,
+          "Situação": "A VENCER"
+         },
+         {
+          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
           "Nome do Débito": "PIS",
           "Competência": "08/2025",
-          "Vencimento Original": "25/09/2025",
+          "Vencimento Original": "09/25/2025",
           "Principal": 0,
           "Multa": 0,
           "Juros": 0,
@@ -680,10 +566,109 @@ document.addEventListener('DOMContentLoaded', () => {
           "Situação": "A VENCER"
          },
          {
+          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
+          "Nome do Débito": "IRPJ LUCRO PRESUMIDO 3ª Quota",
+          "Competência": "1º Trimestre",
+          "Vencimento Original": "06/30/2025",
+          "Principal": 5080.31,
+          "Multa": 1016.06,
+          "Juros": 288.56,
+          "Total": 6384.93,
+          "Situação": "VENCIDO"
+         },
+         {
+          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
+          "Nome do Débito": "CSLL DEMAIS 2ª Quota",
+          "Competência": "1º Trimestre",
+          "Vencimento Original": "05/30/2025",
+          "Principal": 2631.91,
+          "Multa": 526.38,
+          "Juros": 149.49,
+          "Total": 3307.78,
+          "Situação": "VENCIDO"
+         },
+         {
+          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
+          "Nome do Débito": "CSLL DEMAIS 3ª Quota",
+          "Competência": "1º Trimestre",
+          "Vencimento Original": "06/30/2025",
+          "Principal": 2631.91,
+          "Multa": 526.38,
+          "Juros": 149.49,
+          "Total": 3307.78,
+          "Situação": "VENCIDO"
+         },
+         {
+          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
+          "Nome do Débito": "IRPJ LUCRO PRESUMIDO 1ª Quota",
+          "Competência": "2º Trimestre",
+          "Vencimento Original": "07/31/2025",
+          "Principal": 21866.61,
+          "Multa": 3463.67,
+          "Juros": 472.31,
+          "Total": 26163.39,
+          "Situação": "VENCIDO"
+         },
+         {
+          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
+          "Nome do Débito": "IRPJ LUCRO PRESUMIDO 2ª Quota",
+          "Competência": "2º Trimestre",
+          "Vencimento Original": "08/29/2025",
+          "Principal": 21866.61,
+          "Multa": 1226.71,
+          "Juros": 472.31,
+          "Total": 23926.43,
+          "Situação": "VENCIDO"
+         },
+         {
+          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
+          "Nome do Débito": "IRPJ LUCRO PRESUMIDO 3ª Quota",
+          "Competência": "2º Trimestre",
+          "Vencimento Original": "09/30/2025",
+          "Principal": 21866.61,
+          "Multa": 0,
+          "Juros": 472.31,
+          "Total": 22338.92,
+          "Situação": "A VENCER"
+         },
+         {
+          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
+          "Nome do Débito": "CSLL DEMAIS 1ª Quota",
+          "Competência": "2º Trimestre",
+          "Vencimento Original": "07/31/2025",
+          "Principal": 8628.94,
+          "Multa": 1366.82,
+          "Juros": 186.38,
+          "Total": 10324.52,
+          "Situação": "VENCIDO"
+         },
+         {
+          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
+          "Nome do Débito": "CSLL DEMAIS 2ª Quota",
+          "Competência": "2º Trimestre",
+          "Vencimento Original": "08/29/2025",
+          "Principal": 8628.93,
+          "Multa": 484.08,
+          "Juros": 186.38,
+          "Total": 9441.77,
+          "Situação": "VENCIDO"
+         },
+         {
+          "Empresa": "AGUIAR DUARTE SERVICOS MEDICOS LTDA - (SC)",
+          "Nome do Débito": "CSLL DEMAIS 3ª Quota",
+          "Competência": "2º Trimestre",
+          "Vencimento Original": "09/30/2025",
+          "Principal": 8628.93,
+          "Multa": 0,
+          "Juros": 186.38,
+          "Total": 8815.31,
+          "Situação": "A VENCER"
+         },
+         {
           "Empresa": "AVANT SPA LTDA - (SC)",
           "Nome do Débito": "PIS",
           "Competência": "08/2025",
-          "Vencimento Original": "25/09/2025",
+          "Vencimento Original": "09/25/2025",
           "Principal": 0,
           "Multa": 0,
           "Juros": 0,
@@ -694,7 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "AVANT SPA LTDA - (SC)",
           "Nome do Débito": "COFINS",
           "Competência": "08/2025",
-          "Vencimento Original": "25/09/2025",
+          "Vencimento Original": "09/25/2025",
           "Principal": 0,
           "Multa": 0,
           "Juros": 0,
@@ -703,44 +688,33 @@ document.addEventListener('DOMContentLoaded', () => {
          },
          {
           "Empresa": "AVANT SPA LTDA - (SC)",
-          "Nome do Débito": "Contribuições sobre a folha",
-          "Competência": "08/2025",
-          "Vencimento Original": "19/09/2025",
-          "Principal": 0,
-          "Multa": 0,
-          "Juros": 0,
-          "Total": 4573.53,
-          "Situação": "A VENCER"
-         },
-         {
-          "Empresa": "AVANT SPA LTDA - (SC)",
           "Nome do Débito": "IRPJ LUCRO PRESUMIDO 1ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "31/07/2025",
+          "Vencimento Original": "07/31/2025",
           "Principal": 9112.39,
-          "Multa": 1443.4,
+          "Multa": 1473.47,
           "Juros": 196.82,
-          "Total": 10752.61,
+          "Total": 10902.96,
           "Situação": "VENCIDO"
          },
          {
           "Empresa": "AVANT SPA LTDA - (SC)",
           "Nome do Débito": "IRPJ LUCRO PRESUMIDO 2ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "29/08/2025",
+          "Vencimento Original": "08/29/2025",
           "Principal": 9112.37,
-          "Multa": 511.2,
+          "Multa": 541.27,
           "Juros": 196.82,
-          "Total": 9820.39,
+          "Total": 9970.74,
           "Situação": "VENCIDO"
          },
          {
           "Empresa": "AVANT SPA LTDA - (SC)",
           "Nome do Débito": "IRPJ LUCRO PRESUMIDO 3ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "30/09/2025",
+          "Vencimento Original": "09/30/2025",
           "Principal": 9112.37,
-          "Multa": "-",
+          "Multa": 0,
           "Juros": 196.82,
           "Total": 9309.19,
           "Situação": "A VENCER"
@@ -749,51 +723,40 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "AVANT SPA LTDA - (SC)",
           "Nome do Débito": "CSLL DEMAIS 1ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "31/07/2025",
+          "Vencimento Original": "07/31/2025",
           "Principal": 4000.47,
-          "Multa": 633.67,
+          "Multa": 646.87,
           "Juros": 86.41,
-          "Total": 4720.55,
+          "Total": 4786.56,
           "Situação": "VENCIDO"
          },
          {
           "Empresa": "AVANT SPA LTDA - (SC)",
           "Nome do Débito": "CSLL DEMAIS 2ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "29/08/2025",
+          "Vencimento Original": "08/29/2025",
           "Principal": 4000.45,
-          "Multa": 224.42,
+          "Multa": 237.62,
           "Juros": 86.4,
-          "Total": 4311.27,
+          "Total": 4377.28,
           "Situação": "VENCIDO"
          },
          {
           "Empresa": "AVANT SPA LTDA - (SC)",
           "Nome do Débito": "CSLL DEMAIS 3ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "30/09/2025",
+          "Vencimento Original": "09/30/2025",
           "Principal": 4000.45,
-          "Multa": "-",
+          "Multa": 0,
           "Juros": 86.4,
           "Total": 4086.85,
-          "Situação": "A VENCER"
-         },
-         {
-          "Empresa": "AVANT SPA LTDA - (SC)",
-          "Nome do Débito": "FGTS",
-          "Competência": "08/2025",
-          "Vencimento Original": "19/09/2025",
-          "Principal": 0,
-          "Multa": 0,
-          "Juros": 0,
-          "Total": 882.6,
           "Situação": "A VENCER"
          },
          {
           "Empresa": "AVANTGARDE CURSOS LTDA - (SP)",
           "Nome do Débito": "PIS",
           "Competência": "08/2025",
-          "Vencimento Original": "25/09/2025",
+          "Vencimento Original": "09/25/2025",
           "Principal": 0,
           "Multa": 0,
           "Juros": 0,
@@ -804,7 +767,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "AVANTGARDE CURSOS LTDA - (SP)",
           "Nome do Débito": "COFINS",
           "Competência": "08/2025",
-          "Vencimento Original": "25/09/2025",
+          "Vencimento Original": "09/25/2025",
           "Principal": 0,
           "Multa": 0,
           "Juros": 0,
@@ -813,64 +776,53 @@ document.addEventListener('DOMContentLoaded', () => {
          },
          {
           "Empresa": "AVANTGARDE CURSOS LTDA - (SP)",
-          "Nome do Débito": "Contribuições sobre a folha",
-          "Competência": "08/2025",
-          "Vencimento Original": "19/09/2025",
-          "Principal": 0,
-          "Multa": 0,
-          "Juros": 0,
-          "Total": 5959.040000000001,
-          "Situação": "A VENCER"
-         },
-         {
-          "Empresa": "AVANTGARDE CURSOS LTDA - (SP)",
           "Nome do Débito": "IRPJ LUCRO PRESUMIDO 1ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "31/07/2025",
+          "Vencimento Original": "07/31/2025",
           "Principal": 31040.76,
           "Multa": 4916.85,
           "Juros": 670.48,
-          "Total": 36628.09,
+          "Total": 37140.26,
           "Situação": "VENCIDO"
          },
          {
           "Empresa": "AVANTGARDE CURSOS LTDA - (SP)",
           "Nome do Débito": "CSLL DEMAIS 1ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "31/07/2025",
+          "Vencimento Original": "07/31/2025",
           "Principal": 12067.17,
           "Multa": 1911.43,
           "Juros": 260.65,
-          "Total": 14239.25,
+          "Total": 14438.36,
           "Situação": "VENCIDO"
          },
          {
           "Empresa": "AVANTGARDE CURSOS LTDA - (SP)",
           "Nome do Débito": "IRPJ LUCRO PRESUMIDO 2ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "29/08/2025",
+          "Vencimento Original": "08/29/2025",
           "Principal": 31040.76,
           "Multa": 1741.38,
           "Juros": 670.48,
-          "Total": 33452.62,
+          "Total": 33964.79,
           "Situação": "VENCIDO"
          },
          {
           "Empresa": "AVANTGARDE CURSOS LTDA - (SP)",
           "Nome do Débito": "CSLL DEMAIS 2ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "29/08/2025",
+          "Vencimento Original": "08/29/2025",
           "Principal": 12067.17,
           "Multa": 676.96,
           "Juros": 260.65,
-          "Total": 13004.78,
+          "Total": 13203.89,
           "Situação": "VENCIDO"
          },
          {
           "Empresa": "AVANTGARDE CURSOS LTDA - (SP)",
           "Nome do Débito": "IRPJ LUCRO PRESUMIDO 3ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "30/09/2025",
+          "Vencimento Original": "09/30/2025",
           "Principal": 31040.76,
           "Multa": "-",
           "Juros": 670.48,
@@ -881,7 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "AVANTGARDE CURSOS LTDA - (SP)",
           "Nome do Débito": "CSLL DEMAIS 3ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "30/09/2025",
+          "Vencimento Original": "09/30/2025",
           "Principal": 12067.17,
           "Multa": "-",
           "Juros": 260.65,
@@ -892,9 +844,9 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "AVANTGARDE CURSOS LTDA - (SP)",
           "Nome do Débito": "Parcelamento (Valor total R$ 62.692,22)",
           "Competência": "01/12",
-          "Vencimento Original": "15/09/2025",
+          "Vencimento Original": "09/22/2025",
           "Principal": 0,
-          "Multa": 0,
+          "Multa": 120.68,
           "Juros": 0,
           "Total": 5224.35,
           "Situação": "A VENCER",
@@ -904,7 +856,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "AVANTGARDE CURSOS LTDA - (SP)",
           "Nome do Débito": "ISS",
           "Competência": "05/2025",
-          "Vencimento Original": "10/06/2025",
+          "Vencimento Original": "06/10/2025",
           "Principal": 51087.03,
           "Multa": 10217.4,
           "Juros": 1164.78,
@@ -915,7 +867,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "AVANTGARDE CURSOS LTDA - (SP)",
           "Nome do Débito": "ISS",
           "Competência": "06/2025",
-          "Vencimento Original": "10/07/2025",
+          "Vencimento Original": "07/10/2025",
           "Principal": 192.5,
           "Multa": 28.58,
           "Juros": 1.93,
@@ -923,32 +875,10 @@ document.addEventListener('DOMContentLoaded', () => {
           "Situação": "Origem do parcelamento"
          },
          {
-          "Empresa": "AVANTGARDE CURSOS LTDA - (SP)",
-          "Nome do Débito": "FGTS",
-          "Competência": "08/2025",
-          "Vencimento Original": "19/09/2025",
-          "Principal": 0,
-          "Multa": 0,
-          "Juros": 0,
-          "Total": 747.99,
-          "Situação": "A VENCER"
-         },
-         {
-          "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
-          "Nome do Débito": "Contribuições sobre a folha",
-          "Competência": "08/2025",
-          "Vencimento Original": "19/09/2025",
-          "Principal": 0,
-          "Multa": 0,
-          "Juros": 0,
-          "Total": 10685.35,
-          "Situação": "A VENCER"
-         },
-         {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "PIS",
           "Competência": "08/2025",
-          "Vencimento Original": "25/09/2025",
+          "Vencimento Original": "09/25/2025",
           "Principal": 0,
           "Multa": 0,
           "Juros": 0,
@@ -959,7 +889,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "COFINS",
           "Competência": "08/2025",
-          "Vencimento Original": "25/09/2025",
+          "Vencimento Original": "09/25/2025",
           "Principal": 0,
           "Multa": 0,
           "Juros": 0,
@@ -970,51 +900,51 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "IRPJ LUCRO PRESUMIDO 1ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "31/07/2025",
+          "Vencimento Original": "07/31/2025",
           "Principal": 19435.69,
           "Multa": 3078.61,
           "Juros": 419.81,
-          "Total": 22934.11,
+          "Total": 23254.8,
           "Situação": "VENCIDO"
          },
          {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "CSLL DEMAIS 1ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "31/07/2025",
+          "Vencimento Original": "07/31/2025",
           "Principal": 8881.76,
           "Multa": 1406.87,
           "Juros": 191.84,
-          "Total": 10480.47,
+          "Total": 10627.01,
           "Situação": "VENCIDO"
          },
          {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "IRPJ LUCRO PRESUMIDO 2ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "29/08/2025",
+          "Vencimento Original": "08/29/2025",
           "Principal": 19435.67,
           "Multa": 1090.34,
           "Juros": 419.81,
-          "Total": 20945.82,
+          "Total": 21266.5,
           "Situação": "VENCIDO"
          },
          {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "CSLL DEMAIS 2ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "29/08/2025",
+          "Vencimento Original": "08/29/2025",
           "Principal": 8881.74,
           "Multa": 498.26,
           "Juros": 191.84,
-          "Total": 9571.84,
+          "Total": 9718.39,
           "Situação": "VENCIDO"
          },
          {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "IRPJ LUCRO PRESUMIDO 3ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "30/09/2025",
+          "Vencimento Original": "09/30/2025",
           "Principal": 19435.67,
           "Multa": 0,
           "Juros": 419.81,
@@ -1025,7 +955,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "CSLL DEMAIS 3ª Quota",
           "Competência": "2º Trimestre",
-          "Vencimento Original": "30/09/2025",
+          "Vencimento Original": "09/30/2025",
           "Principal": 8881.74,
           "Multa": 0,
           "Juros": 191.84,
@@ -1036,7 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "Parcelamento (Valor total R$ 17.494,61)",
           "Competência": "14/34 parcelas",
-          "Vencimento Original": "30/09/2025",
+          "Vencimento Original": "09/30/2025",
           "Principal": 0,
           "Multa": 0,
           "Juros": 0,
@@ -1048,7 +978,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "Multa por Atraso na Entrega da DCTF",
           "Competência": 2023,
-          "Vencimento Original": "20/12/2023",
+          "Vencimento Original": "12/20/2023",
           "Principal": 171.61,
           "Multa": 34.32,
           "Juros": 12.04,
@@ -1059,7 +989,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "Multa por Atraso na Entrega da ECF",
           "Competência": 2023,
-          "Vencimento Original": "20/12/2023",
+          "Vencimento Original": "12/20/2023",
           "Principal": 453.17,
           "Multa": 90.63,
           "Juros": 31.81,
@@ -1070,7 +1000,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "Multa por Atraso na Entrega da ECD",
           "Competência": 2023,
-          "Vencimento Original": "20/12/2023",
+          "Vencimento Original": "12/20/2023",
           "Principal": 56.64,
           "Multa": 11.32,
           "Juros": 3.97,
@@ -1078,10 +1008,10 @@ document.addEventListener('DOMContentLoaded', () => {
           "Situação": "Origem do parcelamento"
          },
          {
-          "Empresa": "INSTITUTO DE FISIologia humana ltda (sp)",
+          "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "Multa por Atraso na Entrega da EFD-Contribuições",
           "Competência": 2023,
-          "Vencimento Original": "20/12/2023",
+          "Vencimento Original": "12/20/2023",
           "Principal": 4.53,
           "Multa": 0.9,
           "Juros": 0.31,
@@ -1092,7 +1022,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "Multa por Atraso na Entrega da EFD-Reinf",
           "Competência": 2023,
-          "Vencimento Original": "20/12/2023",
+          "Vencimento Original": "12/20/2023",
           "Principal": 13.59,
           "Multa": 2.71,
           "Juros": 0.95,
@@ -1103,7 +1033,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "Multa por Atraso na Entrega da GFIP/SEFIP",
           "Competência": 2023,
-          "Vencimento Original": "20/12/2023",
+          "Vencimento Original": "12/20/2023",
           "Principal": 56.64,
           "Multa": 11.32,
           "Juros": 3.97,
@@ -1114,7 +1044,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "Parcelamento - Paes - Pessoa Jurídica",
           "Competência": "02/2024",
-          "Vencimento Original": "26/04/2024",
+          "Vencimento Original": "04/26/2024",
           "Principal": 500,
           "Multa": 0,
           "Juros": 17.65,
@@ -1125,7 +1055,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "IOF",
           "Competência": 2023,
-          "Vencimento Original": "20/12/2023",
+          "Vencimento Original": "12/20/2023",
           "Principal": 45.31,
           "Multa": 9.06,
           "Juros": 3.18,
@@ -1136,7 +1066,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "COFINS",
           "Competência": "02/2024",
-          "Vencimento Original": "25/03/2024",
+          "Vencimento Original": "03/25/2024",
           "Principal": 936.33,
           "Multa": 187.26,
           "Juros": 41.38,
@@ -1147,7 +1077,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "CSLL",
           "Competência": "4º Trimestre/2023",
-          "Vencimento Original": "31/01/2024",
+          "Vencimento Original": "01/31/2024",
           "Principal": 650.88,
           "Multa": 130.17,
           "Juros": 39.37,
@@ -1158,7 +1088,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "PIS/Pasep - Faturamento",
           "Competência": "11/2023",
-          "Vencimento Original": "20/12/2023",
+          "Vencimento Original": "12/20/2023",
           "Principal": 5204.64,
           "Multa": 1040.92,
           "Juros": 365.36,
@@ -1169,7 +1099,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "PIS/Pasep - Faturamento",
           "Competência": "12/2023",
-          "Vencimento Original": "19/01/2024",
+          "Vencimento Original": "01/19/2024",
           "Principal": 5204.64,
           "Multa": 1040.92,
           "Juros": 314.88,
@@ -1180,7 +1110,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "IRPJ",
           "Competência": "02/2024",
-          "Vencimento Original": "25/03/2024",
+          "Vencimento Original": "03/25/2024",
           "Principal": 202.87,
           "Multa": 40.57,
           "Juros": 8.96,
@@ -1191,7 +1121,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "CP Patronal - Retenção",
           "Competência": "08/2023",
-          "Vencimento Original": "20/09/2023",
+          "Vencimento Original": "09/20/2023",
           "Principal": 423.5,
           "Multa": 84.7,
           "Juros": 41.63,
@@ -1202,7 +1132,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "Parcelamento (Valor total R$48.465,67)",
           "Competência": "2/06 parcelas",
-          "Vencimento Original": "30/09/2025",
+          "Vencimento Original": "09/30/2025",
           "Principal": 0,
           "Multa": 0,
           "Juros": 0,
@@ -1214,7 +1144,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "IRPJ - Lucro Presumido",
           "Competência": "1º Trimestre/2025",
-          "Vencimento Original": "30/04/2025",
+          "Vencimento Original": "04/30/2025",
           "Principal": 24423.39,
           "Multa": 4884.67,
           "Juros": 1103.93,
@@ -1225,7 +1155,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
           "Nome do Débito": "COFINS",
           "Competência": "03/2025",
-          "Vencimento Original": "25/04/2025",
+          "Vencimento Original": "04/25/2025",
           "Principal": 21820.59,
           "Multa": 4364.11,
           "Juros": 986.29,
@@ -1254,7 +1184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cleanedDateStr = d.trim();
         const parts = cleanedDateStr.split('/');
         if (parts.length !== 3) return null;
-        const [day, month, yearStr] = parts;
+        const [month, day, yearStr] = parts; // Handles MM/DD/YYYY
         let year = parseInt(yearStr, 10);
         if (year < 100) { year += 2000; }
         const date = new Date(year, parseInt(month, 10) - 1, parseInt(day, 10));
@@ -1293,7 +1223,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const competenceRegex = /(\d+)\/(\d+)/;
         const totalValueRegex = /valor total R\$ ([\d.,]+)/i;
         const balanceRegex = /saldo devedor ([\d.,]+)/i;
-        const competenceMatch = row['Competência']?.match(competenceRegex);
+        const competenceMatch = row['Competência']?.toString().match(competenceRegex);
         const totalValueMatch = row['Nome do Débito']?.match(totalValueRegex);
         const balanceMatch = row['Nome do Débito']?.match(balanceRegex) || row.Column10?.match(balanceRegex);
         return {
@@ -1723,15 +1653,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Debt By Company Chart (Bar)
+        const barCtx = document.getElementById('debtByCompanyChart').getContext('2d');
+        const barGradient = barCtx.createLinearGradient(0, 0, 0, barCtx.canvas.height);
+        barGradient.addColorStop(0, getCssVar('--primary-fg'));
+        barGradient.addColorStop(1, getCssVar('--primary-bg'));
         if (debtByCompanyChart) debtByCompanyChart.destroy();
-        debtByCompanyChart = new Chart(document.getElementById('debtByCompanyChart'), {
+        debtByCompanyChart = new Chart(barCtx, {
             type: 'bar',
             data: {
                 labels: top5Companies.map(([name]) => name.length > 20 ? name.substring(0, 18) + '...' : name),
                 datasets: [{
                     label: 'Dívida por Empresa',
                     data: top5Companies.map(([, value]) => value),
-                    backgroundColor: getCssVar('--primary-bg'),
+                    backgroundColor: barGradient,
                     borderColor: getCssVar('--primary-fg'),
                     borderWidth: 2,
                     borderRadius: 6,
@@ -2137,13 +2071,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Theme Toggle
         dom.themeToggleButton.addEventListener('click', toggleTheme);
-        const icon = dom.themeToggleButton.querySelector('i');
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            icon.setAttribute('data-lucide', 'moon');
-        } else {
-            icon.setAttribute('data-lucide', 'sun');
-        }
-        lucide.createIcons();
 
         // View Navigation
         dom.navDashboardBtn.addEventListener('click', () => switchView('dashboard'));
@@ -2285,9 +2212,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleTheme = () => {
         const isDark = document.documentElement.classList.toggle('dark-theme');
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        const icon = dom.themeToggleButton.querySelector('i');
-        icon.setAttribute('data-lucide', isDark ? 'moon' : 'sun');
-        lucide.createIcons();
+        const iconContainer = dom.themeToggleButton;
+        if (iconContainer) {
+            // Clear current icon (which is an svg after the first render) and add a new <i> element
+            iconContainer.innerHTML = `<i data-lucide="${isDark ? 'moon' : 'sun'}" class="w-5 h-5 text-[var(--text-secondary)]"></i>`;
+            lucide.createIcons();
+        }
         applyFiltersAndRender(); // Re-render charts with new theme colors
     };
     
@@ -2312,17 +2242,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }));
 
             setupEventListeners();
-            applyFiltersAndRender();
             
             // Set default view
             switchView('dashboard');
             
             // Apply initial theme
-            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            const prefersDark = localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            const iconContainer = dom.themeToggleButton;
+            const icon = iconContainer ? iconContainer.querySelector('i') : null;
+
+            if (prefersDark) {
                 document.documentElement.classList.add('dark-theme');
+                if (icon) icon.setAttribute('data-lucide', 'moon');
             } else {
                 document.documentElement.classList.remove('dark-theme');
+                if (icon) icon.setAttribute('data-lucide', 'sun');
             }
+            
+            applyFiltersAndRender();
 
             setDashboardLoading(false);
             dom.loadingOverlay.classList.remove('show');
