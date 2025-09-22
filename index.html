@@ -1465,7 +1465,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalInstallments = plans.reduce((acc, plan) => acc + plan.numParcelas, 0);
 
         const kpiData = [
-            { id: "kpi-valor-total-elegivel", title: "Valor Total Elegível", value: totalEligible, format: formatCurrency, icon: "coins", color: getCssVar('--primary-fg') },
+            { id: "kpi-valor-total-elegivel", title: "Total de Débitos a Parcelar", value: totalEligible, format: formatCurrency, icon: "coins", color: getCssVar('--primary-fg') },
             { id: "kpi-impacto-mensal", title: "Impacto Mensal Total", value: monthlyImpact, format: formatCurrency, icon: "calendar-days", color: getCssVar('--success') },
             { id: "kpi-total-parcelas", title: "Total de Parcelas (Soma)", value: totalInstallments, format: (v) => `${v.toLocaleString('pt-BR')}x`, icon: "list-ordered", color: getCssVar('--brand-purple') },
         ];
@@ -1516,16 +1516,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="text-[var(--text-secondary)] mt-2">Não foram encontrados dados para a simulação de parcelamento.</p>
             </div>`;
             lucide.createIcons();
-            state.installmentPlans = {};
             renderParcelamentoKPIs();
             return;
         }
 
         dom.parcelamentoContent.innerHTML = '';
-        state.installmentPlans = {};
 
         companiesForParcelamento.forEach(({ companyName, totalEligible, impostos }) => {
             const companyId = companyName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+
+            // Get saved state or set default
+            const savedPlan = state.installmentPlans[companyName];
+            const numParcelas = savedPlan ? savedPlan.numParcelas : 1;
+            const valorParcela = totalEligible / numParcelas;
+
+            // If no plan exists, create it now to ensure it's in the state
+            if (!savedPlan) {
+                state.installmentPlans[companyName] = {
+                    numParcelas: numParcelas,
+                    valorParcela: valorParcela,
+                    total: totalEligible,
+                };
+            }
+
             const cardHtml = `
                 <div class="content-card p-6 parcelamento-card" data-company="${companyName}">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -1544,15 +1557,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="flex items-center justify-between mt-6">
                         <div>
                             <p class="text-sm text-[var(--text-secondary)]">Valor da Parcela</p>
-                            <p class="text-3xl font-bold text-[var(--primary-fg)]" id="valor-parcela-${companyId}">${formatCurrency(totalEligible / 1)}</p>
+                            <p class="text-3xl font-bold text-[var(--primary-fg)]" id="valor-parcela-${companyId}">${formatCurrency(valorParcela)}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-sm text-[var(--text-secondary)]">Nº de Parcelas</p>
-                            <p class="text-3xl font-bold" id="parcelas-count-${companyId}">1x</p>
+                            <p class="text-3xl font-bold" id="parcelas-count-${companyId}">${numParcelas}x</p>
                         </div>
                     </div>
                     <div class="mt-6">
-                        <input type="range" min="1" max="60" value="1" class="w-full" id="slider-${companyId}">
+                        <input type="range" min="1" max="60" value="${numParcelas}" class="w-full" id="slider-${companyId}">
                         <div class="flex justify-between text-xs text-[var(--text-tertiary)] mt-2">
                             <span>1x</span>
                             <span>60x</span>
@@ -1562,29 +1575,22 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             dom.parcelamentoContent.insertAdjacentHTML('beforeend', cardHtml);
 
-            // Set initial state
-            state.installmentPlans[companyName] = {
-                numParcelas: 1,
-                valorParcela: totalEligible / 1,
-                total: totalEligible,
-            };
-
             const slider = document.getElementById(`slider-${companyId}`);
             const valorParcelaEl = document.getElementById(`valor-parcela-${companyId}`);
             const parcelasCountEl = document.getElementById(`parcelas-count-${companyId}`);
 
             // Event listener for the slider
             slider.addEventListener('input', (e) => {
-                const numParcelas = parseInt(e.target.value);
-                const valorParcela = totalEligible / numParcelas;
+                const newNumParcelas = parseInt(e.target.value);
+                const newValorParcela = totalEligible / newNumParcelas;
 
-                parcelasCountEl.textContent = `${numParcelas}x`;
-                valorParcelaEl.textContent = formatCurrency(valorParcela);
+                parcelasCountEl.textContent = `${newNumParcelas}x`;
+                valorParcelaEl.textContent = formatCurrency(newValorParcela);
 
                 // Update state and re-render KPIs
                 state.installmentPlans[companyName] = {
-                    numParcelas,
-                    valorParcela: valorParcela,
+                    numParcelas: newNumParcelas,
+                    valorParcela: newValorParcela,
                     total: totalEligible,
                 };
                 renderParcelamentoKPIs();
