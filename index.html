@@ -399,7 +399,7 @@
                     <main class="flex-1 p-4 sm:p-6 lg:p-8 animate-fade-in">
                         <div class="mb-8">
                             <h1 class="text-3xl font-bold text-[var(--text-primary)]">Dashboard Fiscal</h1>
-                            <p class="text-[var(--text-secondary)] mt-1">Análise detalhada da situação fiscal das empresas do <span class="font-semibold text-[var(--text-primary)]">Grupo Avant Garde</span>.</p>
+                            <p class="text-[var(--text-secondary)] mt-1">Análise detalhada dos débitos fiscais das empresas do <span class="font-semibold text-[var(--text-primary)]">Grupo Avant Garde</span>.</p>
                         </div>
 
                         <section id="kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8"></section>
@@ -407,13 +407,13 @@
                         <section class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
                             <div class="lg:col-span-2 chart-card flex flex-col">
                                 <div class="flex justify-between items-center">
-                                    <h3 class="font-bold">Dívida por Tipo</h3>
+                                    <h3 class="font-bold">Débitos por Tipo</h3>
                                     <button id="clear-tipo-filter-btn" class="text-xs text-[var(--primary-fg)] font-semibold hover:underline hidden">Limpar</button>
                                 </div>
                                 <div class="relative flex-1 min-h-[300px] mt-4"><canvas id="debtByTypeChart"></canvas></div>
                             </div>
                             <div class="lg:col-span-3 chart-card flex flex-col">
-                                <h3 class="font-bold">Dívida por Empresa</h3>
+                                <h3 class="font-bold">Débitos por Empresa</h3>
                                 <div class="relative flex-1 min-h-[300px] mt-4"><canvas id="debtByCompanyChart"></canvas></div>
                             </div>
                         </section>
@@ -451,6 +451,11 @@
                             </div>
                             <div id="pagination-controls" class="p-4 flex items-center justify-between flex-wrap gap-4"></div>
                         </div>
+
+                        <footer class="py-6 mt-4 text-sm text-[var(--text-tertiary)] flex items-center justify-center gap-2">
+                           <i data-lucide="shield-check" class="w-4 h-4 text-[var(--brand-success)] opacity-90"></i>
+                           <span class="font-medium">Plataforma desenvolvida por <strong class="font-semibold text-[var(--text-secondary)]">Sete Soluções Fiscais</strong></span>
+                        </footer>
                     </main>
                 </div>
             </div>
@@ -1393,8 +1398,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- RENDER FUNCTIONS ---
     const renderKPIs = (currentKpis, prevKpis) => {
         const kpiData = [
-            { id: "kpi-total-debt", title: "Dívida Ativa", rawValue: currentKpis.totalDebt, icon: "landmark", color: getCssVar('--primary-fg') },
-            { id: "kpi-overdue-debt", title: "Dívida Vencida", rawValue: currentKpis.overdueDebt, icon: "siren", color: getCssVar('--danger') },
+            { id: "kpi-total-debt", title: "Débitos Totais", rawValue: currentKpis.totalDebt, icon: "landmark", color: getCssVar('--primary-fg') },
+            { id: "kpi-overdue-debt", title: "Débitos Vencidos", rawValue: currentKpis.overdueDebt, icon: "siren", color: getCssVar('--danger') },
             { id: "kpi-upcoming-debt", title: "A Vencer", rawValue: currentKpis.upcomingDebt, icon: "calendar-check", color: getCssVar('--warning') },
             { id: "kpi-total-juros", title: "Total em Juros", rawValue: currentKpis.totalJuros, icon: "trending-up", color: getCssVar('--brand-purple') },
             { id: "kpi-total-multa", title: "Total em Multa", rawValue: currentKpis.totalMulta, icon: "receipt", color: getCssVar('--brand-pink') },
@@ -1625,7 +1630,7 @@ document.addEventListener('DOMContentLoaded', () => {
             data: {
                 labels: Object.keys(debtByType),
                 datasets: [{
-                    label: 'Dívida por Tipo',
+                    label: 'Débitos por Tipo',
                     data: Object.values(debtByType),
                     backgroundColor: chartColors,
                     borderColor: getCssVar('--card-bg'),
@@ -1663,7 +1668,7 @@ document.addEventListener('DOMContentLoaded', () => {
             data: {
                 labels: top5Companies.map(([name]) => name.length > 20 ? name.substring(0, 18) + '...' : name),
                 datasets: [{
-                    label: 'Dívida por Empresa',
+                    label: 'Débitos por Empresa',
                     data: top5Companies.map(([, value]) => value),
                     backgroundColor: barGradient,
                     borderColor: getCssVar('--primary-fg'),
