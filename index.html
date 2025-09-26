@@ -924,7 +924,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "Situação": "VENCIDO"
          },
          {
-          "Empresa": "INSTITUTO DE FISIOLOGIA HUMANA LTDA (SP)",
+          "Empresa": "INSTITUTO DE FISIologia HUMANA LTDA (SP)",
           "Nome do Débito": "IRPJ LUCRO PRESUMIDO 2ª Quota",
           "Competência": "2º Trimestre",
           "Vencimento Original": "08/29/2025",
@@ -2028,6 +2028,14 @@ document.addEventListener('DOMContentLoaded', () => {
             state.tempFilters = { search: state.filters.search, startDate: '', endDate: '', situacoes: [], tipos: [], chartTipo: state.filters.chartTipo };
             state.tempActiveCompanies = new Set(allCompanies);
             renderFilterDrawer();
+        });
+
+        document.getElementById('startDate').addEventListener('change', (e) => {
+            state.tempFilters.startDate = e.target.value;
+        });
+
+        document.getElementById('endDate').addEventListener('change', (e) => {
+            state.tempFilters.endDate = e.target.value;
         });
 
         dom.tableBody.addEventListener('click', (e) => {
