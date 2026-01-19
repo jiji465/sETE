@@ -228,6 +228,66 @@
         }
         .sub-row, .details-row { background-color: color-mix(in srgb, var(--subtle-bg) 50%, var(--card-bg)); }
 
+        /* MOBILE OPTIMIZATIONS */
+        @media (max-width: 768px) {
+            .table-header { display: none; }
+            .table-container { 
+                border: none; 
+                box-shadow: none; 
+                background: transparent;
+                overflow: visible !important;
+            }
+            .table-container > div {
+                max-height: none !important;
+                overflow: visible !important;
+            }
+            table { display: block; width: 100%; }
+            tbody { display: block; width: 100%; }
+            
+            .table-row {
+                display: flex;
+                flex-direction: column;
+                background-color: var(--card-bg) !important;
+                border: 1px solid var(--border-color);
+                border-radius: 0.75rem;
+                margin-bottom: 1rem;
+                box-shadow: var(--shadow-sm);
+                overflow: hidden;
+            }
+            .table-row td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 1rem;
+                border-bottom: 1px solid var(--border-color);
+                text-align: right;
+                width: 100% !important;
+            }
+            .table-row td:last-child { border-bottom: none; }
+            .table-row td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-secondary);
+                text-transform: uppercase;
+                font-size: 0.7rem;
+                letter-spacing: 0.05em;
+                margin-right: 1rem;
+                text-align: left;
+            }
+            /* Hide the expander cell on mobile if empty, or style it as a header */
+            .table-row td:first-child { 
+                background-color: var(--subtle-bg);
+                justify-content: center;
+                padding: 0.5rem;
+            }
+            .table-row td:first-child::before { display: none; }
+            
+            .sub-row td {
+                padding-left: 1rem;
+                background-color: color-mix(in srgb, var(--subtle-bg) 70%, var(--card-bg));
+            }
+        }
+
         /* Forms & Inputs */
         .filter-input, .custom-select-trigger { 
             background-color: var(--card-bg); 
@@ -533,6 +593,18 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const DEBITOS_DATA_RAW = [
+ {
+  "Empresa": "AVANT SPA",
+  "Receita": "CSRF",
+  "PA/Exerc.": "dez/25",
+  "Dt. Vcto": "01/20/2026",
+  "Vl. Original": 30.35,
+  "Sdo. Devedor": 30.35,
+  "Multa": 0,
+  "Juros": 0,
+  "Sdo. Dev. Cons.": 30.35,
+  "Situação": "A VENCER"
+ },
  {
   "Empresa": "AVANTGARDE CURSOS",
   "Receita": "IRPJ",
@@ -1962,14 +2034,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const isExpanded = state.expandedRows.has(item.id);
             tableHtml += `
                 <tr class="table-row" data-id="${item.id}" style="--animation-delay: ${index * 50}ms">
-                    <td class="p-3 w-8 text-center">
+                    <td class="p-3 w-8 text-center" data-label="Expandir">
                         ${item.subRows && item.subRows.length > 0 ? `<button class="expand-btn p-1 rounded-full hover:bg-[var(--primary-bg)]"><i data-lucide="${isExpanded ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4"></i></button>` : ''}
                     </td>
-                    <td class="p-4 font-semibold">${item.empresa}</td>
-                    <td class="p-4 text-[var(--text-secondary)]">${item.nomeDebito}</td>
-                    <td class="p-4">${formatDate(parseDate(item.vencimento))}</td>
-                    <td class="p-4 font-semibold text-right">${formatCurrency(item.valor)}</td>
-                    <td class="p-4"><span class="status-badge status-${item.situacao.replace(/\s+/g, '_')}">${item.situacao}</span></td>
+                    <td class="p-4 font-semibold" data-label="Empresa">${item.empresa}</td>
+                    <td class="p-4 text-[var(--text-secondary)]" data-label="Nome do Débito">${item.nomeDebito}</td>
+                    <td class="p-4" data-label="Vencimento">${formatDate(parseDate(item.vencimento))}</td>
+                    <td class="p-4 font-semibold text-right" data-label="Valor Atual">${formatCurrency(item.valor)}</td>
+                    <td class="p-4" data-label="Situação"><span class="status-badge status-${item.situacao.replace(/\s+/g, '_')}">${item.situacao}</span></td>
                 </tr>
             `;
 
@@ -1977,11 +2049,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.subRows.forEach(subItem => {
                     tableHtml += `
                     <tr class="table-row sub-row" data-parent-id="${item.id}">
-                        <td></td>
-                        <td class="p-4 pl-8 text-[var(--text-secondary)]" colspan="2">${subItem.nomeDebito}</td>
-                        <td class="p-4">${formatDate(parseDate(subItem.vencimento))}</td>
-                        <td class="p-4 font-semibold text-right">${formatCurrency(subItem.valor)}</td>
-                        <td class="p-4"><span class="status-badge status-Origem_do_parcelamento">Origem do Parcelamento</span></td>
+                        <td data-label=""></td>
+                        <td class="p-4 pl-8 text-[var(--text-secondary)]" colspan="2" data-label="Detalhe">${subItem.nomeDebito}</td>
+                        <td class="p-4" data-label="Vencimento">${formatDate(parseDate(subItem.vencimento))}</td>
+                        <td class="p-4 font-semibold text-right" data-label="Valor">${formatCurrency(subItem.valor)}</td>
+                        <td class="p-4" data-label="Status"><span class="status-badge status-Origem_do_parcelamento">Origem do Parcelamento</span></td>
                     </tr>
                     `;
                 });
