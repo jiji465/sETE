@@ -1,6 +1,6 @@
 # Débitos fiscais do Grupo Avant Garde
 
-Painel com os débitos fiscais das empresas do grupo: totais vencidos e a vencer, composição de principal, multa e juros, gráficos por empresa e por natureza, tabela filtrável, exportação em CSV e impressão.
+Painel com os débitos fiscais vencidos das empresas do grupo: seleção de empresas na lateral, total vencido com a composição de principal, multa e juros, gráficos por empresa e por natureza, tabela com busca e filtros por esfera, natureza, atraso e vencimento, exportação em CSV e impressão.
 
 Aplicativo no AI Studio: https://ai.studio/apps/e36747bc-397f-4a59-be25-21e8ea31a621
 
