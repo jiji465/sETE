@@ -139,6 +139,8 @@ Os dados ficam na constante `DADOS`, dentro de `index.html`. Para uma nova posi�
 
 ## 5. Registro de mudanças
 
+**17/11/2026, ajuste.** Saíram do painel os dois débitos de ISS do Instituto de Fisiologia Humana Ltda das competências 07/2026 (R$ 17.231,62) e 08/2026 (R$ 17.355,32). O painel passa a ter 96 débitos vencidos, R$ 694.886,54.
+
 **17/11/2026, segunda versão.** O painel passou a mostrar só os débitos vencidos: 98 débitos, R$ 729.473,48. Saíram a data de posição do cabeçalho e a seção "Fontes e observações". As empresas ficaram numa lista de seleção à esquerda. A barra de filtros foi refeita com busca (atalho `/`) e pílulas com painel suspenso para esfera, natureza, faixa de atraso e vencimento, cada uma com contagem por opção e remoção individual. O atraso passou para baixo do vencimento, com marcador colorido por faixa. A tabela ganhou o modo compacto para telas médias, e a impressão saiu com as colunas completas. Os gráficos e a tabela usam a razão social completa.
 
 **17/11/2026.** Débitos atualizados para a posição de 17/11/2026. Nova interface com o sistema de design acima, colunas de composição, natureza do débito, exportação CSV completa, impressão e correção dos erros listados na crítica. Saíram do painel o Tailwind, o lucide e o adaptador de datas do Chart.js; ficou só o Chart.js, com versão fixa. Itens da posição de 28/04/2026 que não fazem parte do novo levantamento não foram mantidos: FGTS de 03/2026, contribuições previdenciárias da Avantgarde Group de 03/2025 e o parcelamento municipal de ISS da Avantgarde Cursos.
