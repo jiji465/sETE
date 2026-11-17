@@ -1,20 +1,22 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Débitos fiscais do Grupo Avant Garde
 
-# Run and deploy your AI Studio app
+Painel com os débitos fiscais das empresas do grupo: totais vencidos e a vencer, composição de principal, multa e juros, gráficos por empresa e por natureza, tabela filtrável, exportação em CSV e impressão.
 
-This contains everything you need to run your app locally.
+Aplicativo no AI Studio: https://ai.studio/apps/e36747bc-397f-4a59-be25-21e8ea31a621
 
-View your app in AI Studio: https://ai.studio/apps/e36747bc-397f-4a59-be25-21e8ea31a621
+## Rodar no computador
 
-## Run Locally
+Pré-requisito: Node.js.
 
-**Prerequisites:**  Node.js
+1. Instale as dependências: `npm install`
+2. Rode o aplicativo: `npm run dev`
 
+O painel é um único arquivo, `index.html`, e também abre direto no navegador.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Atualizar os débitos
+
+Os dados ficam na constante `DADOS`, dentro de `index.html`. O roteiro dos campos está em [DESIGN.md](DESIGN.md), seção 4.
+
+## Design
+
+Crítica de design, auditoria, tokens e componentes: [DESIGN.md](DESIGN.md).
